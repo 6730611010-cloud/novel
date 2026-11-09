@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <title>NovelStream - Transmedia Gateway</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/quasar@2.14.0/dist/quasar.prod.css" rel="stylesheet" type="text/css">
+  
+  <style>
+    body {
+      font-family: 'Kanit', sans-serif;
+      background-color: #141414;
+      color: #fff;
+    }
+    
+    .page-padding {
+      padding-left: 80px;
+      padding-right: 80px;
+    }
+    
+    .hero-container { 
+      padding-left: 40px; 
+      padding-right: 40px; 
+    }
+
+    .hero-section { 
+      height: 68vh; 
+      min-height: 480px; 
+      position: relative;
+      overflow: hidden;
+      background-color: #000;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      transition: all 0.5s ease-in-out;
+    }
+
+    .video-bg-wrapper {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .video-bg-iframe {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 100vw; height: 56.25vw;
+      min-height: 100vh; min-width: 177.77vh;
+      transform: translate(-50%, -50%);
+      border: none;
+      pointer-events: none;
+    }
+
+    .hero-overlay { 
+      position: relative;
+      z-index: 2;
+      background: linear-gradient(to top, #141414 0%, rgba(20,20,20,0.2) 50%, rgba(0,0,0,0.6) 100%); 
+      width: 100%; height: 100%; 
+      display: flex; flex-direction: column; 
+      justify-content: flex-end; 
+      padding-bottom: 40px;
+      padding-left: 40px;  
+      padding-right: 40px; 
+    }
+    
+    .max-width-description { max-width: 600px; line-height: 1.5; font-weight: 300; }
+    
+    .novel-card { width: 100%; cursor: pointer; transition: transform 0.3s ease; }
+    .novel-card:hover { transform: scale(1.06); z-index: 10; }
+    
+    .novel-img-wrapper { 
+      width: 100%; height: 290px; 
+      border-radius: 14px; 
+      overflow: hidden; 
+      position: relative; 
+      background-color: #222; 
+    }
+    .novel-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .badge-end {
+      position: absolute; top: 10px; left: 10px;
+      background: #e50914; color: white;
+      font-size: 12px; padding: 4px 10px;
+      border-radius: 6px; font-weight: 600; z-index: 2;
+    }
+
+    .novel-title-line {
+      white-space: normal; overflow: hidden; text-overflow: ellipsis; 
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; 
+      line-height: 1.35;
+      font-size: 15.5px;
+      letter-spacing: 0.2px;
+      color: #eaeaea;
+    }
+
+    .row-container { position: relative; }
+    .slider-arrow {
+      position: absolute; top: 55%; transform: translateY(-50%); z-index: 25;
+      background: rgba(0, 0, 0, 0.75) !important; color: #fff !important;
+      width: 46px; height: 46px; transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6); border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .slider-arrow:hover {
+      background: #e50914 !important; transform: translateY(-50%) scale(1.15); border-color: transparent;
+    }
+    .arrow-left { left: 25px; } 
+    .arrow-right { right: 25px; }
+
+    .scroll-row {
+      overflow-x: auto; white-space: nowrap; padding-bottom: 20px;
+      scroll-behavior: smooth; scrollbar-width: none;
+    }
+    .scroll-row::-webkit-scrollbar { display: none; }
+    .scroll-row > div { display: inline-flex; gap: 16px; }
+    .scroll-row .novel-card { width: 190px; flex: 0 0 auto; }
+
+    .header-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .preview-modal { 
+      background-color: #181818; overflow: hidden; border-radius: 16px !important; 
+      border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+    }
+    .modal-video-wrapper { position: relative; padding-bottom: 52%; height: 0; overflow: hidden; background: #000; }
+    .modal-video-iframe { position: absolute; top: -15%; left: -15%; width: 130%; height: 130%; border: none; pointer-events: none; }
+    .click-blocker { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
+    .modal-video-overlay { position: absolute; bottom: 0; left: 0; right: 0; height: 160px; background: linear-gradient(to top, #181818 0%, rgba(24,24,24,0.4) 60%, transparent 100%); }
+    .modal-content-area { margin-top: -80px; position: relative; z-index: 10; }
+    .age-badge { border: 1px solid rgba(255, 255, 255, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 0.8em; }
+
+    .nav-link { transition: all 0.2s ease-in-out; padding: 6px 12px; border-radius: 6px; user-select: none; }
+    .nav-link:hover { color: #ffffff !important; background: rgba(255, 255, 255, 0.12); }
+    .search-input { width: 260px; transition: all 0.3s ease; }
+    
+    .sound-btn { background: rgba(0, 0, 0, 0.6) !important; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); }
+  </style>
+</head>
+<body>
+  <div id="q-app">
+    <q-layout view="hHh lpR fFf" class="text-white">
+      
+      <!-- Navbar -->
+      <q-header class="text-white" style="background-color: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05);" height-hint="64">
+        <q-toolbar class="page-padding q-py-sm">
+          <q-toolbar-title class="text-weight-bolder text-red-6 text-h5 cursor-pointer" style="max-width: 200px;" @click="setTab('all')">
+            NOVELSTREAM
+          </q-toolbar-title>
+          
+          <div class="row q-gutter-xs items-center text-weight-medium cursor-pointer q-mr-auto">
+            <span class="nav-link cursor-pointer" :class="currentTab === 'all' ? 'text-white text-weight-bolder' : 'text-grey-5'" @click="setTab('all')">หน้าหลัก</span>
+
+            <q-btn-dropdown flat no-caps :label="selectedAdaptFilterLabel" class="nav-link cursor-pointer" :class="currentTab !== 'all' ? 'text-white text-weight-bolder' : 'text-grey-5'">
+              <q-list class="bg-grey-10 text-white" style="min-width: 150px; font-family: 'Kanit', sans-serif;">
+                <q-item clickable v-close-popup @click="setTab('series')">
+                  <q-item-section avatar><q-icon name="tv" color="blue-4" /></q-item-section>
+                  <q-item-section>ซีรีส์</q-item-section>
+                </q-item>
+                <q-item clickable v-close-popup @click="setTab('anime')">
+                  <q-item-section avatar><q-icon name="live_tv" color="purple-4" /></q-item-section>
+                  <q-item-section>อนิเมะ</q-item-section>
+                </q-item>
+                <q-item clickable v-close-popup @click="setTab('movie')">
+                  <q-item-section avatar><q-icon name="movie" color="amber-4" /></q-item-section>
+                  <q-item-section>ภาพยนตร์</q-item-section>
+                </q-item>
+              </q-list>
+            </q-btn-dropdown>
+          </div>
+
+          <q-space></q-space>
+
+          <div class="row items-center q-gutter-x-sm">
+            <q-input v-if="showSearch" v-model="searchQuery" placeholder="ค้นหาชื่อเรื่อง หรือ แท็ก..." dense outlined dark color="red-6" class="search-input" autofocus>
+              <template v-slot:append>
+                <q-icon v-if="searchQuery !== ''" name="close" class="cursor-pointer" @click="searchQuery = ''" />
+                <q-icon name="search" />
+              </template>
+            </q-input>
+            <q-btn flat round icon="search" @click="toggleSearch"></q-btn>
+          </div>
+        </q-toolbar>
+      </q-header>
+
+      <q-page-container class="q-pt-none">
+        <q-page class="q-pb-xl">
+          
+          <!-- หน้าค้นหา -->
+          <div v-if="searchQuery.trim() !== ''" class="q-pt-xl page-padding" style="margin-top: 64px;">
+            <div class="row items-center q-mb-md">
+              <div class="text-h5 text-weight-bold">🔍 ผลการค้นหาสำหรับ "{{ searchQuery }}"</div>
+              <q-chip size="sm" color="grey-8" text-color="white" class="q-ml-md">{{ filteredSearchResults.length }} เรื่อง</q-chip>
+            </div>
+            <div v-if="filteredSearchResults.length === 0" class="text-grey-5 text-subtitle1 q-my-xl text-center">ไม่พบผลลัพธ์ที่ตรงกับคำค้นหา</div>
+            <div class="row q-col-gutter-md" v-else>
+              <div v-for="novel in filteredSearchResults" :key="'search-' + novel.id" class="col-xs-6 col-sm-4 col-md-3 col-lg-2">
+                <div class="novel-card" @click="openPreview(novel)">
+                  <div class="novel-img-wrapper shadow-4">
+                    <img :src="novel.cover" @error="(e) => handleImgError(e, novel.title)" alt="cover">
+                    <div v-if="novel.isEnd" class="badge-end">จบแล้ว</div>
+                  </div>
+                  <div class="text-weight-medium q-mt-sm novel-title-line">{{ novel.title }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- หน้าปกติ -->
+          <div v-else>
+            <!-- Hero Banner -->
+            <div class="hero-container q-pt-sm" v-show="heroNovel">
+              <div class="hero-section" style="margin-top: 64px;">
+                <div class="video-bg-wrapper">
+                  <div id="hero-youtube-player" class="video-bg-iframe"></div>
+                </div>
+
+                <div class="hero-overlay" v-if="heroNovel">
+                  
+                  <!-- ปุ่มเปิด/ปิดเสียงกลาง (ควบคุมร่วมกันทั้งหน้าเว็บ) -->
+                  <div class="absolute-bottom-right z-top q-mb-lg q-mr-lg">
+                    <q-btn 
+                      round 
+                      class="sound-btn text-white shadow-6" 
+                      size="md"
+                      :icon="isGlobalMuted ? 'volume_off' : 'volume_up'" 
+                      @click="toggleGlobalMute" 
+                      :title="isGlobalMuted ? 'เปิดเสียง' : 'ปิดเสียง'"
+                    />
+                  </div>
+
+                  <div class="text-h3 text-weight-bolder q-mb-xs" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.9);">
+                    {{ heroNovel.title }}
+                  </div>
+
+                  <div class="row items-center q-gutter-x-md text-subtitle1 q-mb-md text-grey-3 text-weight-medium" style="text-shadow: 1px 1px 4px rgba(0,0,0,0.8);">
+                    <span v-if="heroNovel.views" class="text-green-5 text-weight-bold row items-center inline"><q-icon name="visibility" class="q-mr-xs"></q-icon>{{ heroNovel.views }}</span>
+                    <span>{{ heroNovel.year }}</span>
+                    <span class="age-badge">{{ heroNovel.ageRate }}</span>
+                  </div>
+
+                  <div class="text-h6 q-mb-lg text-grey-3 max-width-description" style="text-shadow: 1px 1px 4px rgba(0,0,0,0.8); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                    {{ heroNovel.synopsis }}
+                  </div>
+
+                  <div class="row q-gutter-md items-center">
+                    <q-btn color="white" text-color="black" icon="play_arrow" label="อ่านเลย" class="text-weight-bold q-px-xl text-subtitle1" rounded @click="openUrl(heroNovel.readUrl)"></q-btn>
+                    <q-btn color="grey-9" text-color="white" icon="info_outline" label="ข้อมูลเพิ่มเติม" class="text-weight-bold q-px-lg text-subtitle1" rounded @click="openPreview(heroNovel)"></q-btn>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- หน้าหลัก (แสดงทุกหมวด) -->
+            <div v-if="currentTab === 'all'">
+              <div class="q-mt-xl page-padding row-container" v-if="blNovels.length > 0">
+                <div class="text-h5 text-weight-bold q-mb-md">💖 Boy Love (วาย)</div>
+                <q-btn round icon="chevron_left" class="slider-arrow arrow-left" @click="scroll(rowBL, -600)"></q-btn>
+                <q-btn round icon="chevron_right" class="slider-arrow arrow-right" @click="scroll(rowBL, 600)"></q-btn>
+                <div class="scroll-row" ref="rowBL">
+                  <div>
+                    <div v-for="novel in blNovels" :key="novel.id" class="novel-card" @click="openPreview(novel)">
+                      <div class="novel-img-wrapper shadow-4">
+                        <img :src="novel.cover" @error="(e) => handleImgError(e, novel.title)" alt="cover">
+                        <div v-if="novel.isEnd" class="badge-end">จบแล้ว</div>
+                      </div>
+                      <div class="text-weight-medium q-mt-sm novel-title-line">{{ novel.title }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-mt-xl page-padding row-container" v-if="fantasyNovels.length > 0">
+                <div class="text-h5 text-weight-bold q-mb-md">✨ แฟนตาซี ผจญภัย & ต่างโลก</div>
+                <q-btn round icon="chevron_left" class="slider-arrow arrow-left" @click="scroll(rowFantasy, -600)"></q-btn>
+                <q-btn round icon="chevron_right" class="slider-arrow arrow-right" @click="scroll(rowFantasy, 600)"></q-btn>
+                <div class="scroll-row" ref="rowFantasy">
+                  <div>
+                    <div v-for="novel in fantasyNovels" :key="novel.id" class="novel-card" @click="openPreview(novel)">
+                      <div class="novel-img-wrapper shadow-4">
+                        <img :src="novel.cover" @error="(e) => handleImgError(e, novel.title)" alt="cover">
+                        <div v-if="novel.isEnd" class="badge-end">จบแล้ว</div>
+                      </div>
+                      <div class="text-weight-medium q-mt-sm novel-title-line">{{ novel.title }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-mt-xl page-padding row-container" v-if="mysteryNovels.length > 0">
+                <div class="text-h5 text-weight-bold q-mb-md">🔍 สืบสวน ปริศนา & ระทึกขวัญ</div>
+                <q-btn round icon="chevron_left" class="slider-arrow arrow-left" @click="scroll(rowMystery, -600)"></q-btn>
+                <q-btn round icon="chevron_right" class="slider-arrow arrow-right" @click="scroll(rowMystery, 600)"></q-btn>
+                <div class="scroll-row" ref="rowMystery">
+                  <div>
+                    <div v-for="novel in mysteryNovels" :key="novel.id" class="novel-card" @click="openPreview(novel)">
+                      <div class="novel-img-wrapper shadow-4">
+                        <img :src="novel.cover" @error="(e) => handleImgError(e, novel.title)" alt="cover">
+                        <div v-if="novel.isEnd" class="badge-end">จบแล้ว</div>
+                      </div>
+                      <div class="text-weight-medium q-mt-sm novel-title-line">{{ novel.title }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-mt-xl page-padding row-container" v-if="schoolNovels.length > 0">
+                <div class="text-h5 text-weight-bold q-mb-md">🏫 โรงเรียน & วัยรุ่น</div>
+                <q-btn round icon="chevron_left" class="slider-arrow arrow-left" @click="scroll(rowSchool, -600)"></q-btn>
+                <q-btn round icon="chevron_right" class="slider-arrow arrow-right" @click="scroll(rowSchool, 600)"></q-btn>
+                <div class="scroll-row" ref="rowSchool">
+                  <div>
+                    <div v-for="novel in schoolNovels" :key="novel.id" class="novel-card" @click="openPreview(novel)">
+                      <div class="novel-img-wrapper shadow-4">
+                        <img :src="novel.cover" @error="(e) => handleImgError(e, novel.title)" alt="cover">
+                        <div v-if="novel.isEnd" class="badge-end">จบแล้ว</div>
+                      </div>
+                      <div class="text-weight-medium q-mt-sm novel-title-line">{{ novel.title }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-mt-xl page-padding row-container" v-if="foodNovels.length > 0">
+                <div class="text-h5 text-weight-bold q-mb-md">🍳 อาหาร & กวนกระเพาะ</div>
+                <q-btn round icon="chevron_left" class="slider-arrow arrow-left" @click="scroll(rowFood, -600)"></q-btn>
+                <q-btn round icon="chevron_right" class="slider-arrow arrow-right" @click="scroll(rowFood, 600)"></q-btn>
+                <div class="scroll-row" ref="rowFood">
+                  <div>
+                    <div v-for="novel in foodNovels" :key="novel.id" class="novel-card" @click="openPreview(novel)">
+                      <div class="novel-img-wrapper shadow-4">
+                        <img :src="novel.cover" @error="(e) => handleImgError(e, novel.title)" alt="cover">
+                        <div v-if="novel.isEnd" class="badge-end">จบแล้ว</div>
+                      </div>
+                      <div class="text-weight-medium q-mt-sm novel-title-line">{{ novel.title }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="q-mt-xl page-padding row-container" v-if="romanceNovels.length > 0">
+                <div class="text-h5 text-weight-bold q-mb-md">🌸 ย้อนยุค & โรแมนติก</div>
+                <q-btn round icon="chevron_left" class="slider-arrow arrow-left" @click="scroll(rowRomance, -600)"></q-btn>
+                <q-btn round icon="chevron_right" class="slider-arrow arrow-right" @click="scroll(rowRomance, 600)"></q-btn>
+                <div class="scroll-row" ref="rowRomance">
+                  <div>
+                    <div v-for="novel in romanceNovels" :key="novel.id" class="novel-card" @click="openPreview(novel)">
+                      <div class="novel-img-wrapper shadow-4">
+                        <img :src="novel.cover" @error="(e) => handleImgError(e, novel.title)" alt="cover">
+                        <div v-if="novel.isEnd" class="badge-end">จบแล้ว</div>
+                      </div>
+                      <div class="text-weight-medium q-mt-sm novel-title-line">{{ novel.title }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- หน้ารวมเฉพาะหมวดที่เลือก -->
+            <div v-else class="q-mt-xl page-padding">
+              <!-- หมวด ซีรีส์ -->
+              <div v-if="currentTab === 'series' && seriesNovels.length > 0" class="q-mb-xl">
+                <div class="row items-center q-mb-lg">
+                  <div class="header-icon bg-blue-10 text-blue-4 shadow-4 q-mr-md">
+                    <q-icon name="tv" size="32px" />
+                  </div>
+                  <div>
+                    <div class="text-h4 text-weight-bolder text-white" style="letter-spacing: 0.5px;">ซีรีส์ยอดฮิต</div>
+                    <div class="text-subtitle1 text-grey-5 q-mt-xs">นิยายชั้นเยี่ยมที่ถูกนำไปสร้างเป็นทีวีซีรีส์ให้คุณได้รับชม</div>
+                  </div>
+                </div>
+                
+                <div class="row q-col-gutter-md">
+                  <div v-for="novel in seriesNovels" :key="'adapt-series-' + novel.id" class="col-xs-6 col-sm-4 col-md-3 col-lg-2">
+                    <div class="novel-card" @click="openPreview(novel)">
+                      <div class="novel-img-wrapper shadow-4">
+                        <img :src="novel.cover" @error="(e) => handleImgError(e, novel.title)" alt="cover">
+                        <div v-if="novel.isEnd" class="badge-end">จบแล้ว</div>
+                      </div>
+                      <div class="text-weight-medium q-mt-sm novel-title-line">{{ novel.title }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- หมวด อนิเมะ -->
+              <div v-if="currentTab === 'anime' && animeNovels.length > 0" class="q-mb-xl">
+                <div class="row items-center q-mb-lg">
+                  <div class="header-icon bg-purple-10 text-purple-4 shadow-4 q-mr-md">
+                    <q-icon name="live_tv" size="32px" />
+                  </div>
+                  <div>
+                    <div class="text-h4 text-weight-bolder text-white" style="letter-spacing: 0.5px;">อนิเมะสุดมันส์</div>
+                    <div class="text-subtitle1 text-grey-5 q-mt-xs">ผลงานนิยายยอดนิยมที่ถูกนำมาดัดแปลงเป็นอนิเมชั่น</div>
+                  </div>
+                </div>
+
+                <div class="row q-col-gutter-md">
+                  <div v-for="novel in animeNovels" :key="'adapt-anime-' + novel.id" class="col-xs-6 col-sm-4 col-md-3 col-lg-2">
+                    <div class="novel-card" @click="openPreview(novel)">
+                      <div class="novel-img-wrapper shadow-4">
+                        <img :src="novel.cover" @error="(e) => handleImgError(e, novel.title)" alt="cover">
+                        <div v-if="novel.isEnd" class="badge-end">จบแล้ว</div>
+                      </div>
+                      <div class="text-weight-medium q-mt-sm novel-title-line">{{ novel.title }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- หมวด ภาพยนตร์ -->
+              <div v-if="currentTab === 'movie' && movieNovels.length > 0" class="q-mb-xl">
+                <div class="row items-center q-mb-lg">
+                  <div class="header-icon bg-amber-10 text-amber-5 shadow-4 q-mr-md">
+                    <q-icon name="movie" size="32px" />
+                  </div>
+                  <div>
+                    <div class="text-h4 text-weight-bolder text-white" style="letter-spacing: 0.5px;">ภาพยนตร์ฟอร์มยักษ์</div>
+                    <div class="text-subtitle1 text-grey-5 q-mt-xs">นิยายเรื่องดังที่กลายมาเป็นภาพยนตร์ขึ้นจอเงิน</div>
+                  </div>
+                </div>
+
+                <div class="row q-col-gutter-md">
+                  <div v-for="novel in movieNovels" :key="'adapt-movie-' + novel.id" class="col-xs-6 col-sm-4 col-md-3 col-lg-2">
+                    <div class="novel-card" @click="openPreview(novel)">
+                      <div class="novel-img-wrapper shadow-4">
+                        <img :src="novel.cover" @error="(e) => handleImgError(e, novel.title)" alt="cover">
+                        <div v-if="novel.isEnd" class="badge-end">จบแล้ว</div>
+                      </div>
+                      <div class="text-weight-medium q-mt-sm novel-title-line">{{ novel.title }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </q-page>
+      </q-page-container>
+
+      <!-- Modal พรีวิวเรื่องย่อ (ใช้ตัวแปรเสียงร่วมกันกับหน้าหลัก) -->
+      <q-dialog v-model="previewModal">
+        <q-card class="preview-modal text-white" style="width: 800px; max-width: 92vw;">
+          <q-btn icon="close" flat round dense v-close-popup class="absolute-top-right q-ma-md z-top sound-btn text-white"></q-btn>
+          
+          <div v-if="selectedNovel">
+            <div class="modal-video-wrapper">
+              <iframe class="modal-video-iframe" :src="'https://www.youtube.com/embed/' + selectedNovel.youtubeId + '?autoplay=1&mute=' + (isGlobalMuted ? '1' : '0') + '&controls=0&modestbranding=1&loop=1&playlist=' + selectedNovel.youtubeId + '&vq=hd1080'" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+              <div class="click-blocker"></div>
+              <div class="modal-video-overlay"></div>
+              <q-btn round flat class="sound-btn text-white absolute-bottom-right q-ma-md z-top" :icon="isGlobalMuted ? 'volume_off' : 'volume_up'" @click="toggleGlobalMute" title="เปิด/ปิดเสียง"></q-btn>
+            </div>
+
+            <q-card-section class="modal-content-area q-px-xl q-pb-xl q-pt-none">
+              <div class="text-h4 text-weight-bolder q-mb-sm" style="text-shadow: 2px 2px 6px rgba(0,0,0,0.9);">{{ selectedNovel.title }}</div>
+              
+              <div class="row items-center q-gutter-x-md text-subtitle1 q-mb-md text-grey-4 text-weight-medium">
+                <span v-if="selectedNovel.views" class="text-green-5 text-weight-bold row items-center inline"><q-icon name="visibility" class="q-mr-xs"></q-icon>{{ selectedNovel.views }}</span>
+                <span>{{ selectedNovel.year }}</span>
+                <span class="age-badge">{{ selectedNovel.ageRate }}</span>
+                <span v-if="selectedNovel.episodes" class="text-grey-4">{{ selectedNovel.episodes }} ตอน</span>
+              </div>
+
+              <div class="row items-center q-gutter-md q-mb-lg">
+                <q-btn color="white" text-color="black" icon="menu_book" label="อ่านเลย" class="text-weight-bold q-px-xl" rounded @click="openUrl(selectedNovel.readUrl)"></q-btn>
+                <q-btn v-if="selectedNovel.seriesUrl" color="red-7" text-color="white" :icon="getAdaptIcon(selectedNovel.adaptType)" :label="getAdaptLabel(selectedNovel.adaptType)" class="text-weight-bold q-px-lg" rounded @click="openUrl(selectedNovel.seriesUrl)"></q-btn>
+                <q-btn v-if="selectedNovel.Audiobooks" color="purple-7" text-color="white" icon="headset" label="Audiobook" class="text-weight-bold q-px-lg" rounded @click="openUrl(selectedNovel.Audiobooks)"></q-btn>
+                <q-btn outline round color="grey-4" icon="share" title="แชร์เรื่องนี้" @click="shareNovel(selectedNovel)"></q-btn>
+              </div>
+
+              <div class="row q-col-gutter-lg">
+                <div class="col-12 col-md-8">
+                  <p class="text-body1 text-grey-3" style="line-height: 1.7; font-size: 0.95rem; font-weight: 300;">{{ selectedNovel.synopsis }}</p>
+                </div>
+                <div class="col-12 col-md-4 text-caption text-grey-5" style="line-height: 1.9; font-size: 0.85rem; font-weight: 300;">
+                  <div><span class="text-grey-3 font-weight-regular">หมวดหมู่:</span> {{ selectedNovel.tags ? selectedNovel.tags.join(', ') : '-' }}</div>
+                  <div><span class="text-grey-3 font-weight-regular">รูปแบบสื่อ:</span> {{ getMediaTypeText(selectedNovel.adaptType) }}</div>
+                  <div><span class="text-grey-3 font-weight-regular">สถานะ:</span> {{ selectedNovel.isEnd ? 'จบแล้ว' : 'ยังไม่จบ' }}</div>
+                  <div><span class="text-grey-3 font-weight-regular">ภาษา:</span> ไทย</div>
+                </div>
+              </div>
+            </q-card-section>
+          </div>
+        </q-card>
+      </q-dialog>
+
+    </q-layout>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/quasar@2.14.0/dist/quasar.umd.prod.js"></script>
+
+  <script>
+    const { ref, computed, onMounted } = Vue;
+
+    const app = Vue.createApp({
+      setup() {
+        const previewModal = ref(false);
+        const selectedNovel = ref(null);
+
+        const currentTab = ref('all');
+        const showSearch = ref(false);
+        const searchQuery = ref('');
+
+        const heroNovel = ref(null);
+        const isGlobalMuted = ref(true); // ใช้ตัวแปรควบคุมเสียงร่วมกันทั้งเว็บ
+
+        let ytPlayer = null;
+
+        const rowBL = ref(null);
+        const rowFantasy = ref(null);
+        const rowMystery = ref(null);
+        const rowSchool = ref(null);
+        const rowFood = ref(null);
+        const rowRomance = ref(null);
+
+        const scroll = (rowEl, offset) => {
+          if (rowEl) {
+            rowEl.scrollBy({ left: offset, behavior: 'smooth' });
+          }
+        };
+
+        const toggleSearch = () => {
+          showSearch.value = !showSearch.value;
+          if (!showSearch.value) searchQuery.value = '';
+        };
+
+        const handleImgError = (e, title) => {
+          const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="290" viewBox="0 0 200 290">
+            <rect width="100%" height="100%" fill="#1f1f27"/>
+            <text x="50%" y="45%" fill="#e50914" font-family="sans-serif" font-size="24" font-weight="bold" text-anchor="middle">NOVEL</text>
+            <text x="50%" y="55%" fill="#777788" font-family="sans-serif" font-size="13" text-anchor="middle">COVER</text>
+          </svg>`;
+          e.target.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+        };
+
+        const openUrl = (url) => {
+          if (url) window.open(url, '_blank');
+          else alert('ยังไม่ได้ใส่ลิงก์สำหรับเรื่องนี้ครับ');
+        };
+
+        const shareNovel = (novel) => {
+          if (navigator.share) {
+            navigator.share({ title: novel.title, text: novel.synopsis, url: novel.readUrl || window.location.href });
+          } else {
+            alert('คัดลอกชื่อเรื่อง "' + novel.title + '" เรียบร้อยแล้ว!');
+          }
+        };
+
+        const openPreview = (novel) => {
+          selectedNovel.value = novel;
+          previewModal.value = true;
+        };
+
+        const getAdaptLabel = (type) => {
+          if (type === 'anime') return 'ดูอนิเมะ';
+          if (type === 'movie') return 'ดูภาพยนตร์';
+          return 'ดูซีรีส์';
+        };
+
+        const getAdaptIcon = (type) => {
+          if (type === 'anime') return 'live_tv';
+          if (type === 'movie') return 'movie';
+          return 'play_arrow';
+        };
+
+        const getMediaTypeText = (type) => {
+          if (type === 'anime') return 'อนิเมะ / นิยาย';
+          if (type === 'movie') return 'ภาพยนตร์ / นิยาย';
+          if (type === 'series') return 'ซีรีส์ / นิยาย';
+          return 'นิยาย';
+        };
+
+        const selectedAdaptFilterLabel = computed(() => {
+          if (currentTab.value === 'series') return 'ซีรีส์';
+          if (currentTab.value === 'anime') return 'อนิเมะ';
+          if (currentTab.value === 'movie') return 'ภาพยนตร์';
+          return 'รูปแบบสื่อ';
+        });
+
+        // ฐานข้อมูลนิยาย 50 เรื่อง
+        const allNovels = ref([
+          { 
+            id: 1, category: 'bl', title: 'หลวงตาบอกแล้วอย่าออกตอนตีสาม...เปรตมันดุ!', cover: './images/ปกพี่ปรี2.jpg', youtubeId: 'C0PDYGM6OQk', 
+            readUrl: 'https://www.readawrite.com/a/8b2efd8099fbeac255f13e13570a2c24', Audiobooks: 'https://www.mebmarket.com/index.php?action=BookDetails&book_id=280861',
+            views: '4.09M', isEnd: true, year: '2026', ageRate: '18+', episodes: 1, hasSeries: true, 
+            tags: ['สยองขวัญ', 'ตลก', 'ผีไทย', 'Boy Love'], synopsis: 'เมื่อแก๊งเด็กแว้นลองดี ท้าทายคำเตือนของหลวงตาประจำหมู่บ้าน การแข่งรถตอนตีสามจึงกลายเป็นการซิ่งหนีตายจากเปรตตัวพ่อ' 
+          },
+          { 
+            id: 2, category: 'bl', title: 'เขมจิราต้องรอด', cover: './images/เขมจิรา.jpg', youtubeId: 'PV7rg5Pl-7Q', 
+            readUrl: 'https://www.readawrite.com/a/3b52fb45a246438adddc0425bb744974', seriesUrl: 'https://www.netflix.com/watch/82755475?trackId=284685572',
+            adaptType: 'series', views: '15.77M', isEnd: false, year: '2025', ageRate: '18+', episodes: 50, hasSeries: true, 
+            tags: ['สยองขวัญ', 'พีเรียด', 'ไสยศาสตร์', 'Boy Love'], synopsis: 'บ้านเรือนไทยโบราณที่ปิดตายมานานนับร้อยปี ถูกเปิดออกพร้อมกับความลับอันดำมืดและวิญญาณที่รอการชำระแค้น' 
+          },
+          { 
+            id: 3, category: 'bl', title: 'อเวจีท้าให้ดิ่ง แน่จริงก็ลงมา!', cover: './images/อเวจีท้าให้ดิ่ง แน่จริงก็ลงมา!.jpg', youtubeId: 'xenXa1SvIQo', 
+            readUrl: 'https://www.readawrite.com/a/bf3d2c94c3eac0ba832aabcc4bf93df0', views: '711.37K', isEnd: true, year: '2025', ageRate: '15+', episodes: 40, hasSeries: true, adaptType: 'series',
+            tags: ['สยองขวัญ', 'ลี้ลับ', 'พญานาค', 'Boy Love'], synopsis: 'นักโบราณคดีหนุ่มผู้ไม่เชื่อเรื่องไสยศาสตร์ ต้องเผชิญหน้ากับคำสาปของป่าศักดิ์สิทธิ์หลังจากขุดพบวัตถุโบราณปริศนา' 
+          },
+          { 
+            id: 4, category: 'bl', title: 'ปรมาจารย์ลัทธิมาร (The Untamed)', cover: './images/ปรมาจารย์ลัทธิมาร.jpg', youtubeId: 'YyIJtA0fSzs', 
+            readUrl: 'https://www.mebmarket.com/index.php?action=BookDetails&book_id=334421', seriesUrl: 'https://www.wetv.vip', adaptType: 'series',
+            views: '10.000M', isEnd: true, year: '2019', ageRate: '15+', episodes: 50, hasSeries: true, 
+            tags: ['Boy Love', 'แฟนตาซีโบราณ', 'สืบสวน'], synopsis: 'ปรมาจารย์อี๋หลิงผู้เคยสร้างความหวาดกลัวไปทั่วปฐพี ได้หวนคืนชีพอีกครั้งในร่างชายตัดเสื้อเพื่อคลี่คลายปริศนาในอดีต' 
+          },
+          { id: 5, category: 'bl', title: 'สวรรค์ประทานพร', cover: './images/สวรรค์ประทานพร.jpg', youtubeId: 'YyIJtA0fSzs', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.netflix.com/title/81364887', adaptType: 'anime', views: '12.4M', isEnd: true, year: '2020', ageRate: '16+', episodes: 24, hasSeries: true, tags: ['Boy Love', 'แฟนตาซีเทพเซียน', 'ปริศนา'], synopsis: 'หลังจากถูกขับไล่ลงมายังโลกมนุษย์เพื่อปราบวิญญาณร้าย เทพตนหนึ่งต้องต่อกรกับจอมมาร' },
+          { id: 6, category: 'bl', title: 'ตัวร้ายอย่างข้า จะหนีเอาตัวรอดยังไงดี', cover: './images/ตัวร้ายอย่างข้า จะหนีเอาตัวรอดยังไงดี.gif', youtubeId: 'YyIJtA0fSzs', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.wetv.vip', adaptType: 'anime', views: '8.7M', isEnd: true, year: '2020', ageRate: '15+', episodes: 10, hasSeries: true, tags: ['Boy Love', 'ระบบ', 'ตลก'], synopsis: 'นักอ่านดวงซวยที่ทะลุมิติเข้าไปเป็นตัวร้ายในนิยายแฟนตาซี' },
+          { id: 7, category: 'bl', title: 'Semantic Error', cover: './images/Semantic Error.gif', youtubeId: '9pvpAoPu-DI', readUrl: 'https://www.readawrite.com', seriesUrl: 'https://www.trueid.net', adaptType: 'series', views: '6.8M', isEnd: true, year: '2021', ageRate: '18+', episodes: 8, hasSeries: true, tags: ['ศัตรูสู่คนรัก', 'มหาวิทยาลัย', 'คอมพิวเตอร์ดีไซน์'], synopsis: 'อดีตหัวหน้าองค์กรลับผู้เหลือเวลาชีวิตอีกไม่นาน ถอนตัวออกมาพเนจร' },
+          { id: 8, category: 'bl', title: 'เพราะเราคู่กัน', cover: './images/เพราะเราคู่กัน.gif', youtubeId: 'YyIJtA0fSzs', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.youtube.com', adaptType: 'series', views: '9.5M', isEnd: true, year: '2020', ageRate: '13+', episodes: 13, hasSeries: true, tags: ['Boy Love', 'โรแมนติกคอมเมดี้', 'มหาวิทยาลัย'], synopsis: 'ไทน์ต้องขอร้องสารวัตร หนุ่มฮอตประจำมหาลัยให้มาช่วยแกล้งเป็นแฟน' },
+          { id: 9, category: 'bl', title: 'นิทานพันดาว', cover: './images/นิทานพันดาว.gif', youtubeId: 'YyIJtA0fSzs', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.youtube.com', adaptType: 'series', views: '7.2M', isEnd: true, year: '2021', ageRate: '13+', episodes: 10, hasSeries: true, tags: ['Boy Love', 'โรแมนติกอบอุ่นหัวใจ', 'ชนบทดอยสูง'], synopsis: 'เธียรผ่าตัดเปลี่ยนหัวใจของคุณครูอาสาบนดอยสูง จึงออกเดินทางตามรอยบันทึกพันดาว' },
+          { id: 10, category: 'bl', title: 'คินน์พอร์ช', cover: './images/คินน์พอร์ช.gif', youtubeId: 'dZvpNreGVOc', readUrl: 'https://www.readawrite.com', seriesUrl: 'https://www.iq.com', adaptType: 'series', views: '11.2M', isEnd: true, year: '2022', ageRate: '18+', episodes: 14, hasSeries: true, tags: ['Boy Love', 'แอ็กชัน', 'มาเฟีย'], synopsis: 'พอร์ช อดีตนักกีฬายูโดตกอับ ต้องกลายมาเป็นบอดี้การ์ดประจำตัวของ คินน์ นายน้อยตระกูลมาเฟียใหญ่' },
+          { id: 11, category: 'fantasy', title: 'Solo Leveling', cover: './images/solo leveling.jpg', youtubeId: 'eqy85AL70PU', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.netflix.com/title/81749761', adaptType: 'anime', views: '25.4M', isEnd: true, year: '2024', ageRate: '15+', episodes: 12, hasSeries: true, tags: ['แฟนตาซี', 'ดันเจี้ยน', 'เอาชีวิตรอด'], synopsis: 'ซองจินอู ฮันเตอร์ระดับ E ผู้ไร้พลัง ได้รับโอกาสเกิดใหม่พร้อมระบบเควสต์พิเศษ' },
+          { id: 12, category: 'fantasy', title: 'มุมมองนักอ่านพระเจ้า', cover: './images/มุมมองนักอ่านพระเจ้า.jpg', youtubeId: 'F2DJP_ZA6Dg', readUrl: 'https://www.readawrite.com', adaptType: 'movie', views: '18.9M', isEnd: false, year: '2025', ageRate: '15+', episodes: 50, hasSeries: true, tags: ['แฟนตาซี', 'โลกาวินาศ', 'ระบบเกม'], synopsis: 'นิยายเรื่องเดียวที่คิมดกจาอ่านจบกลายมาเป็นโลกแห่งความจริง' },
+          { id: 13, category: 'fantasy', title: 'Sword Art Online', cover: './images/Sword Art Online.jpg', youtubeId: '6ohYYtxfDCg', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.iq.com', adaptType: 'anime', views: '20.1M', isEnd: true, year: '2012', ageRate: '15+', episodes: 25, hasSeries: true, tags: ['แฟนตาซี', 'เกมVRMMO', 'ผจญภัย'], synopsis: 'คิริโตะและผู้เล่นหมื่นคนติดอยู่ในเกม VRMMO หากตายในเกม ร่างจริงในโลกจริงจะตายไปด้วย' },
+          { id: 14, category: 'fantasy', title: 'Overlord', cover: './images/Overlord.jpg', youtubeId: 'uhlBqFj9kDw', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.netflix.com', adaptType: 'anime', views: '14.2M', isEnd: false, year: '2015', ageRate: '18+', episodes: 13, hasSeries: true, tags: ['ดาร์กแฟนตาซี', 'บอสจอมมาร', 'ต่างโลก'], synopsis: 'เกมเมอร์ขี้เหงาถูกส่งไปยังต่างโลกในร่างของ ไอน์ส อูล โกน จอมมารโครงกระดูก' },
+          { id: 15, category: 'fantasy', title: 'เกิดใหม่ทั้งทีก็เป็นสไลม์ไปซะแล้ว', cover: './images/เกิดใหม่ทั้งทีก็เป็นสไลม์ไปซะแล้ว.jpg', youtubeId: 'VgZz9SrAFz0', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://youtu.be/GfpqxtXaTt4', adaptType: 'anime', views: '16.5M', isEnd: false, year: '2018', ageRate: '13+', episodes: 24, hasSeries: true, tags: ['ต่างโลก', 'บริหารสร้างเมือง', 'แฟนตาซี'], synopsis: 'ชายหนุ่มวัยทำงานถูกแทงตายแล้วไปเกิดใหม่เป็นสไลม์ในต่างโลก' },
+          { id: 16, category: 'fantasy', title: 'ขอให้โชคดีมีชัยในโลกแฟนตาซี! (KonoSuba)', cover: './images/ขอให้โชคดีมีชัยในโลกแฟนตาซี!.gif', youtubeId: 'VPkxTBde3eo', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.netflix.com', adaptType: 'anime', views: '13.1M', isEnd: true, year: '2016', ageRate: '13+', episodes: 10, hasSeries: true, tags: ['ล้อเลียนต่างโลก', 'ตลกเบาสมอง', 'แฟนตาซี'], synopsis: 'คาซึมะ เด็กติดเกมที่เสียชีวิตด้วยเหตุสุดอนาถา ได้เลือกเทพธิดาไร้ประโยชน์ติดตัวไปผจญภัยในต่างโลก' },
+          { id: 17, category: 'fantasy', title: 'สัประยุทธ์ทะลุฟ้า', cover: './images/สัประยุทธ์ทะลุฟ้า.jpg', youtubeId: 'CUZkpb40QNY', readUrl: 'https://www.yaakz.com', seriesUrl: 'https://wetv.vip', adaptType: 'anime', views: '19.8M', isEnd: true, year: '2018', ageRate: '15+', episodes: 45, hasSeries: true, tags: ['ฝึกตน', 'แฟนตาซีกำลังภายใน', 'ต่อสู้'], synopsis: 'เซียวเอ๋อร์ อัจฉริยะผู้สูญเสียลมปราณกะทันหัน ต้องฝ่าฟันอุปสรรคเพื่อกอบกู้เกียรติยศ' },
+          { id: 18, category: 'fantasy', title: 'เทพยุทธ์เซียน Glory', cover: './images/เทพยุทธ์เซียน.gif', youtubeId: 'Jj8w2iIIeZw', readUrl: 'https://www.se-ed.com', seriesUrl: 'https://wetv.vip', adaptType: 'anime', views: '15.3M', isEnd: true, year: '2019', ageRate: '13+', episodes: 40, hasSeries: true, tags: ['กีฬาอีสปอร์ต', 'แฟนตาซีเกมออนไลน์', 'แอ็กชัน'], synopsis: 'เยี่ยซิว ยอดฝีมือระดับตำนานของเกมกลอรี ถูกบีบให้ลาออกจากสโมสร' },
+          { id: 19, category: 'fantasy', title: 'แฮร์รี่ พอตเตอร์', cover: './images/แฮร์รี่ พอตเตอร์.jpg', youtubeId: 'w81GvNtsKp8', readUrl: 'https://www.naiin.com', seriesUrl: 'https://www.hbomax.com', adaptType: 'movie', views: '30.5M', isEnd: true, year: '2001', ageRate: '13+', episodes: 8, hasSeries: true, tags: ['วรรณกรรมเวทมนตร์', 'โรงเรียนคาถา', 'แฟนตาซี'], synopsis: 'เด็กชายผู้รอดชีวิตได้รับจดหมายเชิญเข้าเรียนโรงเรียนเวทมนตร์ฮอกวอตส์' },
+          { id: 20, category: 'fantasy', title: 'มหาศึกชิงบัลลังก์ (Game of Thrones)', cover: './images/Game of Thrones.jpg', youtubeId: 'KYKpcWuZDYs', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.hbogo.co.th', adaptType: 'series', views: '50.1M', isEnd: true, year: '2011', ageRate: '18+', episodes: 73, hasSeries: true, tags: ['ดาร์กไฮแฟนตาซี', 'ชิงอำนาจการเมือง', 'สงคราม'], synopsis: 'ตระกูลมหาอำนาจในเวสเตอรอสต่อสู้แย่งชิงบัลลังก์เหล็ก' },
+          { id: 21, category: 'mystery', title: 'กลลวงซ่อนตาย', cover: './images/กลลวงซ่อนตาย.gif', youtubeId: 'zid7iIkIvhc', readUrl: 'https://www.mebmarket.com', adaptType: 'movie', views: '8.4M', isEnd: true, year: '2008', ageRate: '15+', episodes: 1, hasSeries: true, tags: ['สืบสวนประลองปัญญา', 'ดราม่าสะเทือนอารมณ์', 'ปริศนา'], synopsis: 'อาจารย์คณิตศาสตร์อัจฉริยะวางแผนฆาตกรรมสมบูรณ์แบบเพื่อปกป้องหญิงสาวที่รัก' },
+          { id: 22, category: 'mystery', title: 'ปาฏิหาริย์ร้านชำของคุณนามิยะ', cover: './images/ปาฏิหาริย์ร้านชำของคุณนามิยะ.jpg', youtubeId: '_10VAhMTzSM', readUrl: 'https://www.naiin.com', seriesUrl: 'https://www.bilibili.tv', adaptType: 'movie', views: '9.1M', isEnd: true, year: '2017', ageRate: '13+', episodes: 1, hasSeries: true, tags: ['ปริศนาข้ามกาลเวลา', 'อบอุ่นหัวใจ', 'แฟนตาซี'], synopsis: 'หัวขโมยสามคนเข้าไปซ่อนตัวในร้านชำร้าง แล้วพบจดหมายขอคำปรึกษาปัญหาชีวิตที่ถูกส่งมาจากอดีต' },
+          { id: 23, category: 'mystery', title: 'คำสารภาพ (Confessions)', cover: './images/คำสารภาพ.jpg', youtubeId: 'F73eXXiMwB4', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.bilibili.tv', adaptType: 'movie', views: '6.7M', isEnd: true, year: '2010', ageRate: '18+', episodes: 1, hasSeries: true, tags: ['จิตวิทยาระทึกขวัญ', 'ล้างแค้นในโรงเรียน', 'ดราม่า'], synopsis: 'ครูประจำชั้นสาวแถลงการณ์ในวันสุดท้ายของการสอน เล่าถึงแผนการแก้แค้นลูกศิษย์สองคนที่ฆ่าลูกสาววัยสี่ขวบของเธอ' },
+          { id: 24, category: 'mystery', title: 'บันทึกคดีของนักสืบโอคิเตะงามิ เคียวโกะ', cover: './images/บันทึกคดีของนักสืบโอคิเตะงามิ เคียวโกะ.jpg', youtubeId: 'QuZW2N-lHTs', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.bilibili.tv', adaptType: 'series', views: '4.2M', isEnd: true, year: '2015', ageRate: '13+', episodes: 10, hasSeries: true, tags: ['สืบสวน', 'ความจำสั้นวันเดียวลืม', 'ตลกเบาสมอง'], synopsis: 'นักสืบสาวผู้มีความจำสั้นเพียงหนึ่งวัน เธอต้องไขคดีปริศนาให้สำเร็จภายในวันเดียว' },
+          { id: 25, category: 'mystery', title: 'บันทึกจอมโจรแห่งสุสาน (The Lost Tomb)', cover: './images/บันทึกจอมโจรแห่งสุสาน.jpg', youtubeId: 'TiUpb_Zz-xs', readUrl: 'https://www.mebmarket.com', adaptType: 'series', views: '12.8M', isEnd: true, year: '2015', ageRate: '15+', episodes: 12, hasSeries: true, tags: ['สืบสวนปริศนาโบราณ', 'ลึกลับเหนือธรรมชาติ', 'ผจญภัย'], synopsis: 'อู๋เสีย คนรุ่นที่สามของตระกูลขุดสุสาน ถือลายแผนที่ลายไหมโบราณนำกลุ่มผจญภัยเข้าสู่สุสานโบราณใต้ดิน' },
+          { id: 26, category: 'mystery', title: 'กาหลมหรทึก', cover: './images/กาหลมหรทึก.gif', youtubeId: 'oZCVx_OVQkY', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.youtube.com', adaptType: 'series', views: '5.9M', isEnd: true, year: '2018', ageRate: '15+', episodes: 26, hasSeries: true, tags: ['สืบสวนย้อนยุคไทย', 'ถอดรหัสคำกลอน', 'พีเรียดไทย'], synopsis: 'สารวัตรเวทางค์สืบสวนคดีฆาตกรรมต่อเนื่องย้อนยุคกรุงเทพฯ' },
+          { id: 27, category: 'mystery', title: 'ฆาตกรรมบนรถด่วนโอเรียนท์เอกซเพรส', cover: './images/ฆาตกรรมบนรถด่วนโอเรียนท์เอกซเพรส.gif', youtubeId: 'Mq4m3yAoW8E', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://share.google', adaptType: 'movie', views: '7.8M', isEnd: true, year: '2017', ageRate: '13+', episodes: 1, hasSeries: true, tags: ['สืบสวนคดีปิดตายคลาสสิก', 'ปริศนา', 'ระทึกขวัญ'], synopsis: 'ยอดนักสืบ แอร์กูล ปัวโรต์ ต้องไขคดีฆาตกรรมเศรษฐีบนรถด่วนหิมะตกถล่ม' },
+          { id: 28, category: 'mystery', title: 'เชอร์ล็อก โฮล์มส์', cover: './images/เชอร์ล็อก โฮล์มส์.jpg', youtubeId: '2zwaYbJc0wU', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://tv.apple.com', adaptType: 'movie', views: '7.8M', isEnd: true, year: '2010', ageRate: '13+', episodes: 13, hasSeries: true, tags: ['อนุมานศาสตร์สืบสวนคลาสสิก', 'ปริศนา', 'แอ็กชัน'], synopsis: 'เชอร์ล็อก โฮล์มส์ ยอดนักสืบแห่งถนนเบเกอร์ ใช้หลักอนุมานศาสตร์ไขคดีสลับซับซ้อนร่วมกับหมอวัตสัน' },
+          { id: 29, category: 'school', title: 'ตับอ่อนเธอนั้น ขอฉันเถอะนะ', cover: './images/ตับอ่อนเธอนั้น ขอฉันเถอะนะ.jpg', youtubeId: '_8nAcGWFVJA', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.bilibili.tv', adaptType: 'movie', views: '8.9M', isEnd: true, year: '2017', ageRate: '13+', episodes: 1, hasSeries: true, tags: ['โรงเรียน', 'ดราม่าโรแมนติกเรียกน้ำตา', 'ซาบซึ้ง'], synopsis: 'เด็กหนุ่มมัธยมบังเอิญไปพบสมุดบันทึกของเพื่อนร่วมชั้นสาวสวย' },
+          { id: 30, category: 'school', title: 'กะแล้วชีวิตรักวัยรุ่นของผมมันต้องไม่สดใสเลยสักนิด', cover: './images/กะแล้วชีวิตรักวัยรุ่นของผมมันต้องไม่สดใสเลยสักนิด.gif', youtubeId: 'IKtrsbkIDkY', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.iq.com', adaptType: 'anime', views: '11.5M', isEnd: true, year: '2013', ageRate: '13+', episodes: 13, hasSeries: true, tags: ['รั้วโรงเรียน', 'ปรัชญาความสัมพันธ์วัยรุ่น', 'คอมเมดี้'], synopsis: 'ฮะจิมัง เด็กหนุ่มมองโลกในแง่ร้าย ถูกครูบังคับให้เข้า "ชมรมจิตอาสา"' },
+          { id: 31, category: 'school', title: 'ฮารุฮิ เรียกเธอว่าพระเจ้า', cover: './images/ฮารุฮิ เรียกเธอว่าพระเจ้า.jpg', youtubeId: 'wSzdR_f2ZTI', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.bilibili.tv', adaptType: 'anime', views: '9.8M', isEnd: false, year: '2006', ageRate: '13+', episodes: 28, hasSeries: true, tags: ['ชมรมโรงเรียน', 'เหนือธรรมชาติ', 'ไซไฟ'], synopsis: 'ฮารุฮิ สาวน้อยผู้ไม่สนใจมนุษย์ธรรมดา ได้ตั้ง "หน่วย SOS" เพื่อตามหามนุษย์ต่างดาว' },
+          { id: 32, category: 'school', title: 'ปริศนาความทรงจำ (Hyouka)', cover: './images/ปริศนาความทรงจำ.jpg', youtubeId: 'KbIUra_o2wc', readUrl: 'https://writer.dek-d.com', seriesUrl: 'https://www.youtube.com', adaptType: 'anime', views: '10.2M', isEnd: true, year: '2012', ageRate: '13+', episodes: 22, hasSeries: true, tags: ['ชีวิตประจำวันในโรงเรียน', 'สืบสวนไขปริศนา', 'อบอุ่น'], synopsis: 'โอเรกิ โฮทาโร่ สายประหยัดพลังงานชีวิต ต้องเข้าชมรมวรรณกรรมคลาสสิก' },
+          { id: 33, category: 'school', title: 'โทระโดระ! ยายเสือใสกับนายลายมังกร', cover: './images/โทระโดระ! ยายเสือใสกับนายลายมังกร.jpg', youtubeId: 'ya570uUgQNc', readUrl: 'https://www.bookwalker.in.th', seriesUrl: 'https://www.bilibili.tv', adaptType: 'anime', views: '8.6M', isEnd: true, year: '2008', ageRate: '13+', episodes: 25, hasSeries: true, tags: ['รั้วโรงเรียน', 'โรแมนติกคอมเมดี้', 'ฟีลกู๊ด'], synopsis: 'ริวจิ ชายหนุ่มหน้าตาเหมือนนักเลง ร่วมมือกับไทกะ สาวไซส์มินิสุดโหด' },
+          { id: 34, category: 'school', title: 'จูนิเบียว ป่วยม.2 โตมาก็เป็นแบบนี้', cover: './images/จูนิเบียว.jpg', youtubeId: 'rQVK9zSveKk', readUrl: 'https://www.bookwalker.in.th', seriesUrl: 'https://www.netflix.com', adaptType: 'anime', views: '7.4M', isEnd: true, year: '2012', ageRate: '13+', episodes: 12, hasSeries: true, tags: ['โรงเรียน', 'คอมเมดี้', 'เพ้อฝันวัยเด็ก'], synopsis: 'ยูตะ อดีตเด็กป่วยม.2 ที่อยากมีชีวิตมัธยมปลายธรรมดา ต้องมาเจอริกกะ' },
+          { id: 35, category: 'school', title: 'The Hunger Games', cover: './images/The Hunger Games.jpg', youtubeId: 'voUF4oYjm8w', readUrl: 'https://pubhtml5.com', seriesUrl: 'https://www.bilibili.tv', adaptType: 'movie', views: '21.0M', isEnd: true, year: '2012', ageRate: '15+', episodes: 4, hasSeries: true, tags: ['ดิสโทเปีย', 'แอ็กชันเซอร์ไววัลเยาวชน', 'ตื่นเต้น'], synopsis: 'แคตนิส เอฟเวอร์ดีน อาสาเข้าร่วมการแข่งขันเกมล่าชีวิตแทนน้องสาว' },
+          { id: 36, category: 'food', title: 'สูตรเด็ดเมนูต่างโลก', cover: './images/สูตรเด็ดเมนูต่างโลก.gif', youtubeId: 'vCQYtw8C1Io', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.netflix.com', adaptType: 'anime', views: '9.3M', isEnd: false, year: '2023', ageRate: '13+', episodes: 12, hasSeries: true, tags: ['ทำอาหารต่างโลก', 'เลี้ยงสัตว์อสูร', 'สโลว์ไลฟ์'], synopsis: 'มุโคดะ ชายหนุ่มธรรมดาถูกอัญเชิญไปต่างโลกพร้อมสกิล "ซูเปอร์มาร์เก็ตออนไลน์"' },
+          { id: 37, category: 'food', title: 'ร้านอาหารต่างโลก', cover: './images/ร้านอาหารต่างโลก.jpg', youtubeId: 'yIEIQuWj8rA', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.bilibili.tv', adaptType: 'anime', views: '6.5M', isEnd: true, year: '2017', ageRate: '13+', episodes: 12, hasSeries: true, tags: ['ร้านอาหารตะวันตก', 'ลูกค้าต่างเผ่าพันธุ์', 'ฟีลกู๊ด'], synopsis: 'ร้านอาหารสไตล์ตะวันตก "เนโคะเคน" เปิดประตูมิติเชื่อมไปยังต่างโลกทุกวันเสาร์' },
+          { id: 38, category: 'food', title: 'อิเซไก อิซากายะ โนบุ', cover: './images/อิเซไก อิซากายะ โนบุ.gif', youtubeId: 'H7yBN2o4SwE', readUrl: 'https://www.phoenixnext.com', seriesUrl: 'https://www.bilibili.tv', adaptType: 'anime', views: '5.2M', isEnd: true, year: '2018', ageRate: '13+', episodes: 24, hasSeries: true, tags: ['ร้านเหล้าญี่ปุ่นโบราณในต่างโลก', 'อาหารกับแกล้ม', 'ผ่อนคลาย'], synopsis: 'ร้านเหล้าแบบญี่ปุ่นโบราณในเมืองเกียวโต มีประตูหลังเชื่อมกับเมืองโบราณไอเทนเรียด' },
+          { id: 39, category: 'food', title: 'ที่พักและอาหารสำหรับภูตพราย', cover: './images/คาเฟ่ลึกลับกับบันทึกอาหารโบราณ.jpg', youtubeId: '421qemrysF0', readUrl: 'https://www.bookwalker.in.th', seriesUrl: 'https://www.crunchyroll.com', adaptType: 'anime', views: '4.8M', isEnd: true, year: '2018', ageRate: '13+', episodes: 26, hasSeries: true, tags: ['ทำอาหารเลี้ยงภูตผี', 'แฟนตาซีญี่ปุ่นโบราณ', 'อบอุ่น'], synopsis: 'อาโออิ หญิงสาวผู้มองเห็นภูตผี ถูกจับตัวไปยังโลกแดนใต้เพื่อแต่งงานชดใช้หนี้' },
+          { id: 40, category: 'food', title: 'ภัตตาคารรอยยิ้ม (Chocolat)', cover: './images/ภัตตาคารรอยยิ้ม.jpg', youtubeId: '692hOJq1KJE', readUrl: 'https://shopee.co.th', seriesUrl: 'https://share.google', adaptType: 'movie', views: '3.1M', isEnd: true, year: '2000', ageRate: '13+', episodes: 1, hasSeries: true, tags: ['อบอุ่นหัวใจ', 'มนต์เสน่ห์ช็อกโกแลตและขนมหวาน', 'โรแมนติก'], synopsis: 'คุณแม่ลูกติดเปิดร้านช็อกโกแลตในหมู่บ้านฝรั่งเศสอันเงียบสงบ' },
+          { id: 41, category: 'food', title: 'ขนมปังของความสุข', cover: './images/ขนมปังของความสุข.jpg', youtubeId: 'XjA480U_TSY', readUrl: 'https://www.amazon.co.jp', seriesUrl: 'https://www.bilibili.tv', adaptType: 'movie', views: '2.9M', isEnd: true, year: '2012', ageRate: '13+', episodes: 1, hasSeries: true, tags: ['อบขนมปัง', 'ชีวิตชนบทฮอกไกโด', 'เยียวยาจิตใจ'], synopsis: 'สามีภรรยาเปิดร้านคาเฟ่และร้านอบขนมปังริมทะเลสาบในฮอกไกโด' },
+          { id: 42, category: 'food', title: 'แฟนที่ทันตแพทย์ส่วนใหญ่แนะนำ', cover: './images/แฟนที่ทันตแพทย์ส่วนใหญ่แนะนำ.jpeg', youtubeId: 'rNcKR4aOSag', readUrl: 'https://ebook.gmm-tv.com', seriesUrl: 'https://www.youtube.com', adaptType: 'series', views: '4.1M', isEnd: true, year: '2021', ageRate: '13+', episodes: 12, hasSeries: true, tags: ['โรแมนติกแฟนตาซี', 'ขนมโบราณ', 'หวานแหวว'], synopsis: 'เรื่องราวความรักแฟนตาซีสุดละมุน ละเลียดความหวานของขนมไทยโบราณ' },
+          { id: 43, category: 'romance', title: 'บุพเพสันนิวาส', cover: './images/บุพเพสันนิวาส.gif', youtubeId: '4a2TBh4w3QI', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://ch3plus.com', adaptType: 'series', views: '24.5M', isEnd: true, year: '2018', ageRate: '13+', episodes: 15, hasSeries: true, tags: ['ย้อนอดีตอยุธยา', 'วัฒนธรรม', 'โรแมนติกคอมเมดี้'], synopsis: 'เกศสุรางค์ นักโบราณคดีสาวร่างอวบ เกิดอุบัติเหตุวิญญาณหลุดไปอยู่ในร่างของแม่การะเกด' },
+          { id: 44, category: 'romance', title: 'พรหมลิขิต', cover: './images/พรหมลิขิต.jpeg', youtubeId: '1GpmbvwBf48', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://ch3plus.com', adaptType: 'series', views: '18.2M', isEnd: true, year: '2023', ageRate: '13+', episodes: 26, hasSeries: true, tags: ['ย้อนยุค', 'ประวัติศาสตร์', 'อาหารและวิถีชาวบ้าน'], synopsis: 'พุดตาน สาวน้อยยุคปัจจุบันถูกคัมภีร์กฤษณะกาลีนำพาข้ามเวลาไปอยุธยา' },
+          { id: 45, category: 'romance', title: 'สามชาติสามภพ ป่าท้อสิบหลี่', cover: './images/สามชาติสามภพ ป่าท้อสิบหลี่.jpg', youtubeId: 'pBq5e-V5IhI', readUrl: 'https://writer.dek-d.com', seriesUrl: 'https://www.netflix.com', adaptType: 'series', views: '22.8M', isEnd: true, year: '2017', ageRate: '15+', episodes: 58, hasSeries: true, tags: ['โรแมนติกเทพเซียน', 'ความรักข้ามภพชาติ', 'จีนโบราณ'], synopsis: 'ความรักสามภพสามชาติระหว่างป๋ายเฉียน มหาเทพจิ้งจอกเก้าหาง และเยี่ยหัว' },
+          { id: 46, category: 'romance', title: 'มธุรสหวานล้ำ สลายเป็นเถ้าราวเกล็ดน้ำค้าง', cover: './images/มธุรสหวานล้ำ สลายเป็นเถ้าราวเกล็ดน้ำค้าง.jpg', youtubeId: 'ncZ4xaaDMcw', readUrl: 'https://www.scribd.com', seriesUrl: 'https://www.iq.com', adaptType: 'series', views: '17.3M', isEnd: true, year: '2018', ageRate: '15+', episodes: 63, hasSeries: true, tags: ['เทพเซียน', 'ดราม่ารักโรแมนติก', 'จีนโบราณ'], synopsis: 'จิ่นมี ธิดาเทพบุปผาผู้กลืนยาไร้รัก ถูกลิขิตให้ไร้ความรู้สึก จนกระทั่งเฟิ่งหวาง เทพสงครามวิหคเพลิง' },
+          { id: 47, category: 'romance', title: 'ปดิวรัดา', cover: './images/ปดิวรัดา.gif', youtubeId: 'bQmsOkU6qJ0', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://ch3plus.com', adaptType: 'series', views: '8.1M', isEnd: true, year: '2016', ageRate: '13+', episodes: 14, hasSeries: true, tags: ['พีเรียดไทย', 'ชีวิตคู่', 'ดราม่าโรแมนติก'], synopsis: 'ริน รวิพรรณ หญิงสาวผู้ยอมสลับตัวแต่งงานกับปลัดหนุ่มต่างจังหวัด' },
+          { id: 48, category: 'romance', title: 'หนึ่งในร้อย', cover: './images/หนึ่งในร้อย.gif', youtubeId: 'pl08-ANOIes', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://ch3plus.com', adaptType: 'series', views: '6.5M', isEnd: true, year: '2024', ageRate: '13+', episodes: 18, hasSeries: true, tags: ['พีเรียดไทยคลาสสิก', 'ความรักต่างชนชั้น'], synopsis: 'เรื่องราวความรักอันมั่นคงและงดงามท่ามกลางกรอบสังคมยุคเก่า' },
+          { id: 49, category: 'romance', title: 'บริดเจอร์ตัน', cover: './images/ดยุคในดวงใจ.gif', youtubeId: 'Oy39yRIvihI', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.netflix.com', adaptType: 'series', views: '15.2M', isEnd: true, year: '2020', ageRate: '18+', episodes: 8, hasSeries: true, tags: ['โรแมนติกย้อนยุคอังกฤษ', 'สังคมชั้นสูง'], synopsis: 'ดัฟนี บริดเจอร์ตัน บุตรีคนโตของตระกูล ร่วมมือวางแผนแกล้งรักกับดยุคแห่งแฮสติงส์' },
+          { id: 50, category: 'romance', title: 'จันทราโอบสุริยัน', cover: './images/จันทราโอบสุริยัน.jpg', youtubeId: '68A9cg9VdCQ', readUrl: 'https://www.se-ed.com', seriesUrl: 'https://www.monomax.me', adaptType: 'series', views: '19.4M', isEnd: true, year: '2012', ageRate: '13+', episodes: 20, hasSeries: true, tags: ['ประวัติศาสตร์โชซอน', 'ชิงไหวพริบราชสำนัก', 'รักแท้'], synopsis: 'เรื่องราวความรักระหว่างพระราชาแห่งโชซอนและหญิงสาวร่างทรง' }
+        ]);
+
+        const filterByTab = (list) => {
+          if (currentTab.value === 'series') return list.filter(n => n.adaptType === 'series' || (!n.adaptType && (n.hasSeries || n.seriesUrl)));
+          if (currentTab.value === 'anime') return list.filter(n => n.adaptType === 'anime');
+          if (currentTab.value === 'movie') return list.filter(n => n.adaptType === 'movie');
+          return list;
+        };
+
+        const seriesNovels = computed(() => allNovels.value.filter(n => n.adaptType === 'series' || (!n.adaptType && (n.hasSeries || n.seriesUrl))));
+        const animeNovels = computed(() => allNovels.value.filter(n => n.adaptType === 'anime'));
+        const movieNovels = computed(() => allNovels.value.filter(n => n.adaptType === 'movie'));
+
+        const filteredSearchResults = computed(() => {
+          if (!searchQuery.value || searchQuery.value.trim() === '') return [];
+          const q = searchQuery.value.toLowerCase().trim();
+          return allNovels.value.filter(n => {
+            const matchTitle = n.title.toLowerCase().includes(q);
+            const matchSynopsis = n.synopsis.toLowerCase().includes(q);
+            const matchTags = n.tags && n.tags.some(t => t.toLowerCase().includes(q));
+            return matchTitle || matchSynopsis || matchTags;
+          });
+        });
+
+        const setTab = (tab) => {
+          currentTab.value = tab;
+          pickRandomHero();
+        };
+
+        const pickRandomHero = () => {
+          let availableList = filterByTab(allNovels.value);
+          if (availableList.length > 0) {
+            let nextNovel;
+            do {
+              nextNovel = availableList[Math.floor(Math.random() * availableList.length)];
+            } while (availableList.length > 1 && heroNovel.value && nextNovel.id === heroNovel.value.id);
+            
+            heroNovel.value = nextNovel;
+            if (ytPlayer && ytPlayer.loadVideoById) {
+              ytPlayer.loadVideoById(nextNovel.youtubeId);
+              if (isGlobalMuted.value) ytPlayer.mute();
+              else { ytPlayer.unMute(); ytPlayer.setVolume(80); }
+            }
+          }
+        };
+
+        // ฟังก์ชันเดียวควบคุมเสียงทั้งเว็บ (ทั้ง Hero และ Modal)
+        const toggleGlobalMute = () => {
+          isGlobalMuted.value = !isGlobalMuted.value;
+          if (ytPlayer) {
+            if (isGlobalMuted.value) {
+              ytPlayer.mute();
+            } else {
+              ytPlayer.unMute();
+              ytPlayer.setVolume(80);
+            }
+          }
+        };
+
+        const initYouTubePlayer = () => {
+          if (!heroNovel.value) pickRandomHero();
+          ytPlayer = new YT.Player('hero-youtube-player', {
+            videoId: heroNovel.value.youtubeId,
+            playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0, showinfo: 0, iv_load_policy: 3 },
+            events: {
+              onReady: (event) => {
+                if (isGlobalMuted.value) event.target.mute();
+                else {
+                  event.target.unMute();
+                  event.target.setVolume(80);
+                }
+                event.target.playVideo();
+              },
+              onStateChange: (event) => {
+                if (event.data === YT.PlayerState.ENDED) pickRandomHero();
+              }
+            }
+          });
+        };
+
+        onMounted(() => {
+          if (!window.YT) {
+            const tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            window.onYouTubeIframeAPIReady = () => initYouTubePlayer();
+          } else {
+            initYouTubePlayer();
+          }
+        });
+
+        const blNovels = computed(() => filterByTab(allNovels.value.filter(n => n.category === 'bl')));
+        const fantasyNovels = computed(() => filterByTab(allNovels.value.filter(n => n.category === 'fantasy')));
+        const mysteryNovels = computed(() => filterByTab(allNovels.value.filter(n => n.category === 'mystery')));
+        const schoolNovels = computed(() => filterByTab(allNovels.value.filter(n => n.category === 'school')));
+        const foodNovels = computed(() => filterByTab(allNovels.value.filter(n => n.category === 'food')));
+        const romanceNovels = computed(() => filterByTab(allNovels.value.filter(n => n.category === 'romance')));
+
+        return { 
+          previewModal, selectedNovel, currentTab, setTab, selectedAdaptFilterLabel,
+          showSearch, searchQuery, toggleSearch, filteredSearchResults,
+          heroNovel, pickRandomHero, isGlobalMuted, toggleGlobalMute,
+          rowBL, rowFantasy, rowMystery, rowSchool, rowFood, rowRomance, scroll,
+          openUrl, shareNovel, openPreview, handleImgError,
+          getAdaptLabel, getAdaptIcon, getMediaTypeText,
+          blNovels, fantasyNovels, mysteryNovels, schoolNovels, foodNovels, romanceNovels,
+          seriesNovels, animeNovels, movieNovels
+        };
+      }
+    });
+
+    app.use(Quasar);
+    app.mount('#q-app');
+  </script>
+</body>
+</html>
