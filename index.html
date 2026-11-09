@@ -510,7 +510,7 @@
         const searchQuery = ref('');
 
         const heroNovel = ref(null);
-        const isGlobalMuted = ref(true); // ใช้ตัวแปรควบคุมเสียงร่วมกันทั้งเว็บ
+        const isGlobalMuted = ref(true);
 
         let ytPlayer = null;
 
@@ -542,8 +542,11 @@
         };
 
         const openUrl = (url) => {
-          if (url) window.open(url, '_blank');
-          else alert('ยังไม่ได้ใส่ลิงก์สำหรับเรื่องนี้ครับ');
+          if (url) {
+            window.open(url, '_blank');
+          } else {
+            alert('ยังไม่ได้ใส่ลิงก์สำหรับเรื่องนี้ครับ');
+          }
         };
 
         const shareNovel = (novel) => {
@@ -590,7 +593,7 @@
           { 
             id: 1, category: 'bl', title: 'หลวงตาบอกแล้วอย่าออกตอนตีสาม...เปรตมันดุ!', cover: './images/ปกพี่ปรี2.jpg', youtubeId: 'C0PDYGM6OQk', 
             readUrl: 'https://www.readawrite.com/a/8b2efd8099fbeac255f13e13570a2c24', Audiobooks: 'https://www.mebmarket.com/index.php?action=BookDetails&book_id=280861',
-            views: '4.09M', isEnd: true, year: '2026', ageRate: '18+', episodes: 1, hasSeries: true, 
+            views: '4.09M', isEnd: true, year: '2026', ageRate: '18+', episodes: 1, hasSeries: true, adaptType: 'movie', 
             tags: ['สยองขวัญ', 'ตลก', 'ผีไทย', 'Boy Love'], synopsis: 'เมื่อแก๊งเด็กแว้นลองดี ท้าทายคำเตือนของหลวงตาประจำหมู่บ้าน การแข่งรถตอนตีสามจึงกลายเป็นการซิ่งหนีตายจากเปรตตัวพ่อ' 
           },
           { 
@@ -647,17 +650,17 @@
           { id: 39, category: 'food', title: 'ที่พักและอาหารสำหรับภูตพราย', cover: './images/คาเฟ่ลึกลับกับบันทึกอาหารโบราณ.jpg', youtubeId: '421qemrysF0', readUrl: 'https://www.bookwalker.in.th', seriesUrl: 'https://www.crunchyroll.com', adaptType: 'anime', views: '4.8M', isEnd: true, year: '2018', ageRate: '13+', episodes: 26, hasSeries: true, tags: ['ทำอาหารเลี้ยงภูตผี', 'แฟนตาซีญี่ปุ่นโบราณ', 'อบอุ่น'], synopsis: 'อาโออิ หญิงสาวผู้มองเห็นภูตผี ถูกจับตัวไปยังโลกแดนใต้เพื่อแต่งงานชดใช้หนี้' },
           { id: 40, category: 'food', title: 'ภัตตาคารรอยยิ้ม (Chocolat)', cover: './images/ภัตตาคารรอยยิ้ม.jpg', youtubeId: '692hOJq1KJE', readUrl: 'https://shopee.co.th', seriesUrl: 'https://share.google', adaptType: 'movie', views: '3.1M', isEnd: true, year: '2000', ageRate: '13+', episodes: 1, hasSeries: true, tags: ['อบอุ่นหัวใจ', 'มนต์เสน่ห์ช็อกโกแลตและขนมหวาน', 'โรแมนติก'], synopsis: 'คุณแม่ลูกติดเปิดร้านช็อกโกแลตในหมู่บ้านฝรั่งเศสอันเงียบสงบ' },
           { id: 41, category: 'food', title: 'ขนมปังของความสุข', cover: './images/ขนมปังของความสุข.jpg', youtubeId: 'XjA480U_TSY', readUrl: 'https://www.amazon.co.jp', seriesUrl: 'https://www.bilibili.tv', adaptType: 'movie', views: '2.9M', isEnd: true, year: '2012', ageRate: '13+', episodes: 1, hasSeries: true, tags: ['อบขนมปัง', 'ชีวิตชนบทฮอกไกโด', 'เยียวยาจิตใจ'], synopsis: 'สามีภรรยาเปิดร้านคาเฟ่และร้านอบขนมปังริมทะเลสาบในฮอกไกโด' },
-          { id: 42, category: 'food', title: 'แฟนที่ทันตแพทย์ส่วนใหญ่แนะนำ', cover: './images/แฟนที่ทันตแพทย์ส่วนใหญ่แนะนำ.jpeg', youtubeId: 'rNcKR4aOSag', readUrl: 'https://ebook.gmm-tv.com', seriesUrl: 'https://www.youtube.com', adaptType: 'series', views: '4.1M', isEnd: true, year: '2021', ageRate: '13+', episodes: 12, hasSeries: true, tags: ['โรแมนติกแฟนตาซี', 'ขนมโบราณ', 'หวานแหวว'], synopsis: 'เรื่องราวความรักแฟนตาซีสุดละมุน ละเลียดความหวานของขนมไทยโบราณ' },
+          { id: '42', category: 'food', title: 'แฟนที่ทันตแพทย์ส่วนใหญ่แนะนำ', cover: './images/แฟนที่ทันตแพทย์ส่วนใหญ่แนะนำ.jpeg', youtubeId: 'rNcKR4aOSag', readUrl: 'https://ebook.gmm-tv.com', seriesUrl: 'https://www.youtube.com', adaptType: 'series', views: '4.1M', isEnd: true, year: '2021', ageRate: '13+', episodes: 12, hasSeries: true, tags: ['โรแมนติกแฟนตาซี', 'ขนมโบราณ', 'หวานแหวว'], synopsis: 'เรื่องราวความรักแฟนตาซีสุดละมุน ละเลียดความหวานของขนมไทยโบราณ' },
           { id: 43, category: 'romance', title: 'บุพเพสันนิวาส', cover: './images/บุพเพสันนิวาส.gif', youtubeId: '4a2TBh4w3QI', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://ch3plus.com', adaptType: 'series', views: '24.5M', isEnd: true, year: '2018', ageRate: '13+', episodes: 15, hasSeries: true, tags: ['ย้อนอดีตอยุธยา', 'วัฒนธรรม', 'โรแมนติกคอมเมดี้'], synopsis: 'เกศสุรางค์ นักโบราณคดีสาวร่างอวบ เกิดอุบัติเหตุวิญญาณหลุดไปอยู่ในร่างของแม่การะเกด' },
           { id: 44, category: 'romance', title: 'พรหมลิขิต', cover: './images/พรหมลิขิต.jpeg', youtubeId: '1GpmbvwBf48', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://ch3plus.com', adaptType: 'series', views: '18.2M', isEnd: true, year: '2023', ageRate: '13+', episodes: 26, hasSeries: true, tags: ['ย้อนยุค', 'ประวัติศาสตร์', 'อาหารและวิถีชาวบ้าน'], synopsis: 'พุดตาน สาวน้อยยุคปัจจุบันถูกคัมภีร์กฤษณะกาลีนำพาข้ามเวลาไปอยุธยา' },
           { id: 45, category: 'romance', title: 'สามชาติสามภพ ป่าท้อสิบหลี่', cover: './images/สามชาติสามภพ ป่าท้อสิบหลี่.jpg', youtubeId: 'pBq5e-V5IhI', readUrl: 'https://writer.dek-d.com', seriesUrl: 'https://www.netflix.com', adaptType: 'series', views: '22.8M', isEnd: true, year: '2017', ageRate: '15+', episodes: 58, hasSeries: true, tags: ['โรแมนติกเทพเซียน', 'ความรักข้ามภพชาติ', 'จีนโบราณ'], synopsis: 'ความรักสามภพสามชาติระหว่างป๋ายเฉียน มหาเทพจิ้งจอกเก้าหาง และเยี่ยหัว' },
           { id: 46, category: 'romance', title: 'มธุรสหวานล้ำ สลายเป็นเถ้าราวเกล็ดน้ำค้าง', cover: './images/มธุรสหวานล้ำ สลายเป็นเถ้าราวเกล็ดน้ำค้าง.jpg', youtubeId: 'ncZ4xaaDMcw', readUrl: 'https://www.scribd.com', seriesUrl: 'https://www.iq.com', adaptType: 'series', views: '17.3M', isEnd: true, year: '2018', ageRate: '15+', episodes: 63, hasSeries: true, tags: ['เทพเซียน', 'ดราม่ารักโรแมนติก', 'จีนโบราณ'], synopsis: 'จิ่นมี ธิดาเทพบุปผาผู้กลืนยาไร้รัก ถูกลิขิตให้ไร้ความรู้สึก จนกระทั่งเฟิ่งหวาง เทพสงครามวิหคเพลิง' },
           { id: 47, category: 'romance', title: 'ปดิวรัดา', cover: './images/ปดิวรัดา.gif', youtubeId: 'bQmsOkU6qJ0', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://ch3plus.com', adaptType: 'series', views: '8.1M', isEnd: true, year: '2016', ageRate: '13+', episodes: 14, hasSeries: true, tags: ['พีเรียดไทย', 'ชีวิตคู่', 'ดราม่าโรแมนติก'], synopsis: 'ริน รวิพรรณ หญิงสาวผู้ยอมสลับตัวแต่งงานกับปลัดหนุ่มต่างจังหวัด' },
           { id: 48, category: 'romance', title: 'หนึ่งในร้อย', cover: './images/หนึ่งในร้อย.gif', youtubeId: 'pl08-ANOIes', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://ch3plus.com', adaptType: 'series', views: '6.5M', isEnd: true, year: '2024', ageRate: '13+', episodes: 18, hasSeries: true, tags: ['พีเรียดไทยคลาสสิก', 'ความรักต่างชนชั้น'], synopsis: 'เรื่องราวความรักอันมั่นคงและงดงามท่ามกลางกรอบสังคมยุคเก่า' },
-          { id: 49, category: 'romance', title: 'บริดเจอร์ตัน', cover: './images/ดยุคในดวงใจ.gif', youtubeId: 'Oy39yRIvihI', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.netflix.com', adaptType: 'series', views: '15.2M', isEnd: true, year: '2020', ageRate: '18+', episodes: 8, hasSeries: true, tags: ['โรแมนติกย้อนยุคอังกฤษ', 'สังคมชั้นสูง'], synopsis: 'ดัฟนี บริดเจอร์ตัน บุตรีคนโตของตระกูล ร่วมมือวางแผนแกล้งรักกับดยุคแห่งแฮสติงส์' },
+          { id: 49, category: 'romance', title: 'บริดเจอร์ตัน', cover: './images/ดยุคในดวงใจ.gif', youtubeId: 'Oy39yRIvihI', readUrl: 'https://www.mebmarket.com', seriesUrl: 'https://www.netflix.com', adaptType: 'series', views: '15.2M', isEnd: year = '2020', ageRate: '18+', episodes: 8, hasSeries: true, tags: ['โรแมนติกย้อนยุคอังกฤษ', 'สังคมชั้นสูง'], synopsis: 'ดัฟนี บริดเจอร์ตัน บุตรีคนโตของตระกูล ร่วมมือวางแผนแกล้งรักกับดยุคแห่งแฮสติงส์' },
           { id: 50, category: 'romance', title: 'จันทราโอบสุริยัน', cover: './images/จันทราโอบสุริยัน.jpg', youtubeId: '68A9cg9VdCQ', readUrl: 'https://www.se-ed.com', seriesUrl: 'https://www.monomax.me', adaptType: 'series', views: '19.4M', isEnd: true, year: '2012', ageRate: '13+', episodes: 20, hasSeries: true, tags: ['ประวัติศาสตร์โชซอน', 'ชิงไหวพริบราชสำนัก', 'รักแท้'], synopsis: 'เรื่องราวความรักระหว่างพระราชาแห่งโชซอนและหญิงสาวร่างทรง' }
         ]);
-
+        
         const filterByTab = (list) => {
           if (currentTab.value === 'series') return list.filter(n => n.adaptType === 'series' || (!n.adaptType && (n.hasSeries || n.seriesUrl)));
           if (currentTab.value === 'anime') return list.filter(n => n.adaptType === 'anime');
