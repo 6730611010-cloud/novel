@@ -549,7 +549,7 @@
           }
         };
 
-        // เลือกลิงก์ "อ่านเลย" ให้ถูกต้องและแม่นยำ
+        // ระบบเลือกลิงก์อ่านอัตโนมัติ (MEB / ลิงก์ตรง / ค้นหา Google)
         const buildReadUrl = (novel) => {
           if (novel.mebBookId) {
             return 'https://www.mebmarket.com/index.php?action=BookDetails&book_id=' + novel.mebBookId;
@@ -659,7 +659,7 @@
           { id: 35, category: 'school', title: 'The Hunger Games', cover: './images/The Hunger Games.jpg', youtubeId: 'voUF4oYjm8w', readUrl: 'https://pubhtml5.com', seriesUrl: 'https://www.bilibili.tv', adaptType: 'movie', views: '21.0M', isEnd: true, year: '2012', ageRate: '15+', episodes: 4, hasSeries: true, tags: ['ดิสโทเปีย', 'แอ็กชันเซอร์ไววัลเยาวชน', 'ตื่นเต้น'], synopsis: 'แคตนิส เอฟเวอร์ดีน อาสาเข้าร่วมการแข่งขันเกมล่าชีวิตแทนน้องสาว' },
           { id: 36, category: 'food', title: 'สูตรเด็ดเมนูต่างโลก', cover: './images/สูตรเด็ดเมนูต่างโลก.gif', youtubeId: 'vCQYtw8C1Io', mebBookId: '', readUrl: '', seriesUrl: 'https://www.netflix.com', adaptType: 'anime', views: '9.3M', isEnd: false, year: '2023', ageRate: '13+', episodes: 12, hasSeries: true, tags: ['ทำอาหารต่างโลก', 'เลี้ยงสัตว์อสูร', 'สโลว์ไลฟ์'], synopsis: 'มุโคดะ ชายหนุ่มธรรมดาถูกอัญเชิญไปต่างโลกพร้อมสกิล "ซูเปอร์มาร์เก็ตออนไลน์"' },
           { id: 37, category: 'food', title: 'ร้านอาหารต่างโลก', cover: './images/ร้านอาหารต่างโลก.jpg', youtubeId: 'yIEIQuWj8rA', mebBookId: '', readUrl: '', seriesUrl: 'https://www.bilibili.tv', adaptType: 'anime', views: '6.5M', isEnd: true, year: '2017', ageRate: '13+', episodes: 12, hasSeries: true, tags: ['ร้านอาหารตะวันตก', 'ลูกค้าต่างเผ่าพันธุ์', 'ฟีลกู๊ด'], synopsis: 'ร้านอาหารสไตล์ตะวันตก "เนโคะเคน" เปิดประตูมิติเชื่อมไปยังต่างโลกทุกวันเสาร์' },
-          { id: 38, category: 'food', title: 'อิเซไก อิซากายะ โนบุ', cover: './images/อิเซไก อิซากายะ โนบุ.gif', youtubeId: 'H7yBN2o4SwE', readUrl: 'https://www.phoenixnext.com', seriesUrl: 'https://www.bilibili.tv', adaptType: 'anime', views: '5.2M', isEnd: true, year: '2018', ageRate: '13+', episodes: 24, hasSeries: true, tags: ['ร้านเหล้าญี่ปุ่นโบราณในต่างโลก', 'อาหารกับแกล้ม', 'ผ่อนคลาย'], synopsis: 'ร้านเหล้าแบบญี่ปุ่นโบราณในเมืองเกียวโต มีประตูหลังเชื่อมกับเมืองโบราณไอเทนเรียด' },
+          { id: 38, category: 'food', title: 'อิเซไก อิซากายะ โนบุ', cover: './images/อิเซไក อิซากายะ โนบุ.gif', youtubeId: 'H7yBN2o4SwE', readUrl: 'https://www.phoenixnext.com', seriesUrl: 'https://www.bilibili.tv', adaptType: 'anime', views: '5.2M', isEnd: true, year: '2018', ageRate: '13+', episodes: 24, hasSeries: true, tags: ['ร้านเหล้าญี่ปุ่นโบราณในต่างโลก', 'อาหารกับแกล้ม', 'ผ่อนคลาย'], synopsis: 'ร้านเหล้าแบบญี่ปุ่นโบราณในเมืองเกียวโต มีประตูหลังเชื่อมกับเมืองโบราณไอเทนเรียด' },
           { id: 39, category: 'food', title: 'ที่พักและอาหารสำหรับภูตพราย', cover: './images/คาเฟ่ลึกลับกับบันทึกอาหารโบราณ.jpg', youtubeId: '421qemrysF0', readUrl: 'https://www.bookwalker.in.th', seriesUrl: 'https://www.crunchyroll.com', adaptType: 'anime', views: '4.8M', isEnd: true, year: '2018', ageRate: '13+', episodes: 26, hasSeries: true, tags: ['ทำอาหารเลี้ยงภูตผี', 'แฟนตาซีญี่ปุ่นโบราณ', 'อบอุ่น'], synopsis: 'อาโออิ หญิงสาวผู้มองเห็นภูตผี ถูกจับตัวไปยังโลกแดนใต้เพื่อแต่งงานชดใช้หนี้' },
           { id: 40, category: 'food', title: 'ภัตตาคารรอยยิ้ม (Chocolat)', cover: './images/ภัตตาคารรอยยิ้ม.jpg', youtubeId: '692hOJq1KJE', readUrl: 'https://shopee.co.th', seriesUrl: 'https://share.google', adaptType: 'movie', views: '3.1M', isEnd: true, year: '2000', ageRate: '13+', episodes: 1, hasSeries: true, tags: ['อบอุ่นหัวใจ', 'มนต์เสน่ห์ช็อกโกแลตและขนมหวาน', 'โรแมนติก'], synopsis: 'คุณแม่ลูกติดเปิดร้านช็อกโกแลตในหมู่บ้านฝรั่งเศสอันเงียบสงบ' },
           { id: 41, category: 'food', title: 'ขนมปังของความสุข', cover: './images/ขนมปังของความสุข.jpg', youtubeId: 'XjA480U_TSY', readUrl: 'https://www.amazon.co.jp', seriesUrl: 'https://www.bilibili.tv', adaptType: 'movie', views: '2.9M', isEnd: true, year: '2012', ageRate: '13+', episodes: 1, hasSeries: true, tags: ['อบขนมปัง', 'ชีวิตชนบทฮอกไกโด', 'เยียวยาจิตใจ'], synopsis: 'สามีภรรยาเปิดร้านคาเฟ่และร้านอบขนมปังริมทะเลสาบในฮอกไกโด' },
@@ -710,45 +710,55 @@
             } while (availableList.length > 1 && heroNovel.value && nextNovel.id === heroNovel.value.id);
             
             heroNovel.value = nextNovel;
-            if (ytPlayer && ytPlayer.loadVideoById) {
-              ytPlayer.loadVideoById(nextNovel.youtubeId);
-              if (isGlobalMuted.value) ytPlayer.mute();
-              else { ytPlayer.unMute(); ytPlayer.setVolume(80); }
+            if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
+              try {
+                ytPlayer.loadVideoById(nextNovel.youtubeId);
+                if (isGlobalMuted.value) ytPlayer.mute();
+                else { ytPlayer.unMute(); ytPlayer.setVolume(80); }
+              } catch (e) {
+                console.warn('YouTube player not ready yet', e);
+              }
             }
           }
         };
 
         const toggleGlobalMute = () => {
           isGlobalMuted.value = !isGlobalMuted.value;
-          if (ytPlayer) {
-            if (isGlobalMuted.value) {
-              ytPlayer.mute();
-            } else {
-              ytPlayer.unMute();
-              ytPlayer.setVolume(80);
+          if (ytPlayer && typeof ytPlayer.mute === 'function') {
+            try {
+              if (isGlobalMuted.value) {
+                ytPlayer.mute();
+              } else {
+                ytPlayer.unMute();
+                ytPlayer.setVolume(80);
+              }
+            } catch (e) {
+              console.warn('Error toggling mute state', e);
             }
           }
         };
 
         const initYouTubePlayer = () => {
           if (!heroNovel.value) pickRandomHero();
-          ytPlayer = new YT.Player('hero-youtube-player', {
-            videoId: heroNovel.value.youtubeId,
-            playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0, showinfo: 0, iv_load_policy: 3 },
-            events: {
-              onReady: (event) => {
-                if (isGlobalMuted.value) event.target.mute();
-                else {
-                  event.target.unMute();
-                  event.target.setVolume(80);
+          if (window.YT && window.YT.Player) {
+            ytPlayer = new YT.Player('hero-youtube-player', {
+              videoId: heroNovel.value.youtubeId,
+              playerVars: { autoplay: 1, controls: 0, modestbranding: 1, rel: 0, showinfo: 0, iv_load_policy: 3 },
+              events: {
+                onReady: (event) => {
+                  if (isGlobalMuted.value) event.target.mute();
+                  else {
+                    event.target.unMute();
+                    event.target.setVolume(80);
+                  }
+                  event.target.playVideo();
+                },
+                onStateChange: (event) => {
+                  if (event.data === YT.PlayerState.ENDED) pickRandomHero();
                 }
-                event.target.playVideo();
-              },
-              onStateChange: (event) => {
-                if (event.data === YT.PlayerState.ENDED) pickRandomHero();
               }
-            }
-          });
+            });
+          }
         };
 
         onMounted(() => {
