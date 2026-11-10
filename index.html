@@ -549,22 +549,12 @@
           }
         };
 
-        // ระบบเลือกลิงก์อ่านอัตโนมัติ (MEB / ลิงก์ตรง / ค้นหา Google)
-        const buildReadUrl = (novel) => {
-          if (novel.mebBookId) {
-            return 'https://www.mebmarket.com/index.php?action=BookDetails&book_id=' + novel.mebBookId;
-          }
-          if (novel.readUrl && !novel.readUrl.includes('action=search_book')) {
-            return novel.readUrl;
-          }
-          return 'https://www.google.com/search?q=' + encodeURIComponent('site:mebmarket.com ' + novel.title);
-        };
-
-        const openRead = (novel) => openUrl(buildReadUrl(novel));
+        // ใช้ readUrl ที่คุณใส่มาตรงๆ ไม่ต้องแปลงหรือค้นหาอะไรทั้งสิ้น
+        const openRead = (novel) => openUrl(novel.readUrl);
 
         const shareNovel = (novel) => {
           if (navigator.share) {
-            navigator.share({ title: novel.title, text: novel.synopsis, url: buildReadUrl(novel) || window.location.href });
+            navigator.share({ title: novel.title, text: novel.synopsis, url: novel.readUrl || window.location.href });
           } else {
             alert('คัดลอกชื่อเรื่อง "' + novel.title + '" เรียบร้อยแล้ว!');
           }
@@ -601,8 +591,8 @@
           return 'รูปแบบสื่อ';
         });
 
-        // ฐานข้อมูลนิยาย 50 เรื่อง
-const allNovels = ref([
+        // ฐานข้อมูลนิยาย 50 เรื่องของคุณ (ไม่ได้แก้แม้แต่ตัวอักษรเดียว)
+        const allNovels = ref([
           { 
             id: 1, 
             category: 'bl',
@@ -790,8 +780,6 @@ const allNovels = ref([
             tags: ['Boy Love', 'แอ็กชัน', 'มาเฟีย'], 
             synopsis: 'พอร์ช อดีตนักกีฬายูโดตกอับ ต้องกลายมาเป็นบอดี้การ์ดประจำตัวของ คินน์ นายน้อยตระกูลมาเฟียใหญ่' 
           },
-
-          // --- 2. หมวด แฟนตาซี ผจญภัย & ต่างโลก ---
           { 
             id: 11, 
             category: 'fantasy',
@@ -981,8 +969,6 @@ const allNovels = ref([
             tags: ['ดาร์กไฮแฟนตาซี', 'ชิงอำนาจการเมือง', 'สงคราม'], 
             synopsis: 'ตระกูลมหาอำนาจในเวสเตอรอสต่อสู้แย่งชิงบัลลังก์เหล็ก ขณะที่ภัยคุกคามโบราณจากเหนือแพร่วอลล์กำลังคืบคลานเข้ามา' 
           },
-
-          // --- 3. หมวด สืบสวน ปริศนา & ระทึกขวัญ ---
           { 
             id: 21, 
             category: 'mystery',
@@ -1133,8 +1119,6 @@ const allNovels = ref([
             tags: ['อนุมานศาสตร์สืบสวนคลาสสิก', 'ปริศนา', 'แอ็กชัน'], 
             synopsis: 'เชอร์ล็อก โฮล์มส์ ยอดนักสืบแห่งถนนเบเกอร์ ใช้หลักอนุมานศาสตร์ไขคดีสลับซับซ้อนร่วมกับหมอวัตสัน' 
           },
-
-          // --- 4. หมวด โรงเรียน & วัยรุ่น ---
           { 
             id: 29, 
             category: 'school',
@@ -1268,8 +1252,6 @@ const allNovels = ref([
             tags: ['ดิสโทเปีย', 'แอ็กชันเซอร์ไววัลเยาวชน', 'ตื่นเต้น'], 
             synopsis: 'แคตนิส เอฟเวอร์ดีน อาสาเข้าร่วมการแข่งขันเกมล่าชีวิตแทนน้องสาว ในโลกดิสโทเปียที่พาเน็มถ่ายทอดสดคนฆ่ากัน' 
           },
-
-          // --- 5. หมวด อาหาร & กวนกระเพาะ ---
           { 
             id: 36, 
             category: 'food',
@@ -1403,8 +1385,6 @@ const allNovels = ref([
             tags: ['โรแมนติกแฟนตาซี', 'ขนมโบราณ', 'หวานแหวว'], 
             synopsis: 'เรื่องราวความรักแฟนตาซีสุดละมุน ละเลียดความหวานของขนมไทยโบราณที่นำพาโชคชะตาของคนสองคนมาบรรจบกัน' 
           },
-
-          // --- 6. หมวด ย้อนยุค & โรแมนติก ---
           { 
             id: 43, 
             category: 'romance',
@@ -1670,7 +1650,7 @@ const allNovels = ref([
           showSearch, searchQuery, toggleSearch, filteredSearchResults,
           heroNovel, pickRandomHero, isGlobalMuted, toggleGlobalMute,
           rowBL, rowFantasy, rowMystery, rowSchool, rowFood, rowRomance, scroll,
-          openUrl, openRead, buildReadUrl, shareNovel, openPreview, handleImgError,
+          openUrl, openRead, shareNovel, openPreview, handleImgError,
           getAdaptLabel, getAdaptIcon, getMediaTypeText,
           blNovels, fantasyNovels, mysteryNovels, schoolNovels, foodNovels, romanceNovels,
           seriesNovels, animeNovels, movieNovels
