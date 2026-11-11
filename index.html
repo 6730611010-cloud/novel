@@ -255,10 +255,13 @@
               autofocus
             >
               <template v-slot:append>
-                <q-icon v-if="searchQuery !== ''" name="close" class="cursor-pointer" @click="searchQuery = ''" />
-                <q-icon name="search" />
+                <q-icon v-if="searchQuery !== ''" name="close" class="cursor-pointer" @click="searchQuery = ''"></q-icon>
+                <q-icon name="search"></q-icon>
               </template>
             </q-input>
+            
+            <!-- ปุ่มแอดมินสำหรับเพิ่มนิยาย -->
+            <q-btn flat round icon="add_circle" color="green-4" @click="showAdminModal = true" title="เพิ่มนิยาย (Admin)"></q-btn>
             
             <q-btn flat round icon="search" @click="toggleSearch"></q-btn>
 
@@ -575,6 +578,58 @@
         </q-card>
       </q-dialog>
 
+      <!-- Modal สำหรับ Admin เพิ่มนิยาย -->
+      <q-dialog v-model="showAdminModal">
+        <q-card style="width: 600px; max-width: 90vw;" :class="isDark ? 'bg-grey-10 text-white' : 'bg-white text-black'" class="q-pa-sm" style="border-radius: 12px;">
+          <q-card-section class="row items-center q-pb-none">
+            <div class="text-h6 text-weight-bold">
+              <q-icon name="add_circle" color="green-5" class="q-mr-sm" size="sm"></q-icon>เพิ่มนิยายใหม่เข้าสู่ระบบ
+            </div>
+            <q-space></q-space>
+            <q-btn icon="close" flat round dense v-close-popup></q-btn>
+          </q-card-section>
+          
+          <q-card-section class="q-pt-md">
+            <q-form @submit="addNewNovel" class="column q-gutter-y-md">
+              <q-input v-model="newNovel.title" label="ชื่อเรื่องนิยาย *" :dark="isDark" outlined dense color="green-5" required autofocus></q-input>
+              
+              <q-select v-model="newNovel.category" :options="categoryOptions" label="หมวดหมู่หลัก *" :dark="isDark" outlined dense color="green-5" emit-value map-options required></q-select>
+              
+              <div style="border: 1px solid rgba(128,128,128,0.3); border-radius: 6px; padding: 10px;">
+                <div class="row items-center q-mb-sm">
+                  <span class="q-mr-md text-weight-medium">รูปหน้าปก:</span>
+                  <q-radio v-model="coverMode" val="url" label="ใส่ลิงก์ URL" :dark="isDark" color="green-5" dense class="q-mr-md"></q-radio>
+                  <q-radio v-model="coverMode" val="upload" label="อัปโหลดจากเครื่อง" :dark="isDark" color="green-5" dense></q-radio>
+                </div>
+                
+                <q-input v-if="coverMode === 'url'" v-model="newNovel.cover" label="ลิงก์รูปหน้าปก (URL) *" placeholder="เช่น https://.../image.jpg หรือ ./images/pic.jpg" :dark="isDark" outlined dense color="green-5" required></q-input>
+                
+                <q-file v-if="coverMode === 'upload'" v-model="uploadFile" label="เลือกรูปหน้าปกจากเครื่อง *" accept="image/*" @update:model-value="onFileSelected" :dark="isDark" outlined dense color="green-5" required>
+                  <template v-slot:append>
+                    <q-icon name="attach_file"></q-icon>
+                  </template>
+                </q-file>
+              </div>
+              
+              <q-input v-model="newNovel.youtubeId" label="YouTube Video ID *" placeholder="ตัวอักษร 11 ตัวหลัง v= (เช่น C0PDYGM6OQk)" :dark="isDark" outlined dense color="green-5" required></q-input>
+              
+              <q-input v-model="newNovel.readUrl" label="ลิงก์สำหรับอ่านเรื่องนี้ (URL) *" placeholder="เช่น https://www.readawrite.com/..." :dark="isDark" outlined dense color="green-5" required></q-input>
+              
+              <q-input v-model="newNovel.synopsis" label="เรื่องย่อ / คำโปรย" type="textarea" :dark="isDark" outlined dense color="green-5" rows="3"></q-input>
+              
+              <q-select v-model="newNovel.adaptType" :options="adaptOptions" label="รูปแบบสื่อดัดแปลง (ถ้ามี)" :dark="isDark" outlined dense color="green-5" emit-value map-options clearable></q-select>
+              
+              <q-input v-if="newNovel.adaptType" v-model="newNovel.seriesUrl" label="ลิงก์ไปดูสื่อดัดแปลง (URL) *" placeholder="เช่น ลิงก์ Netflix, YouTube, iQIYI" :dark="isDark" outlined dense color="green-5" required></q-input>
+              
+              <div class="row justify-end q-mt-lg q-gutter-sm">
+                <q-btn label="ยกเลิก" color="grey" flat v-close-popup rounded class="q-px-md"></q-btn>
+                <q-btn label="บันทึกข้อมูล" type="submit" color="green-6" rounded class="q-px-md text-weight-bold"></q-btn>
+              </div>
+            </q-form>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
+
     </q-layout>
   </div>
 
@@ -589,6 +644,41 @@
         const isDark = ref(true);
         const previewModal = ref(false);
         const selectedNovel = ref(null);
+        
+        // ตัวแปรสำหรับระบบ Admin เพิ่มนิยาย
+        const showAdminModal = ref(false);
+        const categoryOptions = [
+          { label: '💖 Boy Love (วาย)', value: 'bl' },
+          { label: '✨ แฟนตาซี ผจญภัย & ต่างโลก', value: 'fantasy' },
+          { label: '🔍 สืบสวน ปริศนา & ระทึกขวัญ', value: 'mystery' },
+          { label: '🏫 โรงเรียน & วัยรุ่น', value: 'school' },
+          { label: '🍳 อาหาร & กวนกระเพาะ', value: 'food' },
+          { label: '🌸 ย้อนยุค & โรแมนติก', value: 'romance' }
+        ];
+        const adaptOptions = [
+          { label: 'ซีรีส์ (Series)', value: 'series' },
+          { label: 'อนิเมะ (Anime)', value: 'anime' },
+          { label: 'ภาพยนตร์ (Movie)', value: 'movie' }
+        ];
+        const newNovel = ref({
+          title: '', category: 'bl', cover: '', youtubeId: '', readUrl: '', synopsis: '', adaptType: null, seriesUrl: ''
+        });
+
+        // ระบบอัปโหลดไฟล์
+        const coverMode = ref('url');
+        const uploadFile = ref(null);
+
+        const onFileSelected = (file) => {
+          if (!file) {
+            newNovel.value.cover = '';
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            newNovel.value.cover = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        };
 
         const currentTab = ref('all');
         const showSearch = ref(false);
@@ -643,7 +733,7 @@
 
         const openUrl = (url) => {
           if (url) {
-            window.open(url, '_blank');
+            window.open(url, '_blank', 'noopener,noreferrer');
           } else {
             alert('ยังไม่ได้ใส่ลิงก์สำหรับเรื่องนี้ครับ');
           }
@@ -1298,7 +1388,7 @@
             title: 'โทระโดระ! ยายเสือใสกับนายลายมังกร (Toradora!)', 
             cover: './images/โทระโดระ! ยายเสือใสกับนายลายมังกร.jpg', 
             youtubeId: 'ya570uUgQNc', 
-            readUrl: 'https://www.animagshop.com/product/1304/animag-%E0%B8%A2%E0%B8%B1%E0%B8%A2%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B8%AD%E0%B9%83%E0%B8%AA%E0%B8%81%E0%B8%B1%E0%B8%9A%E0%B8%99%E0%B8%B2%E0%B8%A2%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2%E0%B9%82%E0%B8%AB%E0%B8%94-%E0%B9%82%E0%B8%97%E0%B8%A3%E0%B8%B0%E0%B9%82%E0%B8%94%E0%B8%A3%E0%B8%B0-novel', 
+            readUrl: 'https://www.animagshop.com/product/1304/animag-%E0%B8%A2%E0%B8%B1%E0%B8%A2%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B8%AD%E0%B9%83%E0%B8%AA%E0%B8%81%E0%B8%B1%E0%B8%9A%E0%B8%99%E0%B8%B2%E0%B8%A2%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2%E0%B9%82%E0%B8%94%E0%B8%A3%E0%B8%B0-novel', 
             seriesUrl: 'https://www.bilibili.tv/th/video/2048831301',
             adaptType: 'anime',
             views: '8.6M', 
@@ -1743,6 +1833,38 @@
         const foodNovels = computed(() => filterByTab(allNovels.value.filter(n => n.category === 'food')));
         const romanceNovels = computed(() => filterByTab(allNovels.value.filter(n => n.category === 'romance')));
 
+        // ฟังก์ชันเมื่อกดปุ่มบันทึกเพิ่มนิยาย
+        const addNewNovel = () => {
+          const novelData = {
+            id: allNovels.value.length + 1,
+            title: newNovel.value.title,
+            category: newNovel.value.category,
+            cover: newNovel.value.cover, // จะเป็น URL หรือ Data Base64 จากรูปที่อัปโหลดก็ได้
+            youtubeId: newNovel.value.youtubeId,
+            readUrl: newNovel.value.readUrl,
+            synopsis: newNovel.value.synopsis,
+            adaptType: newNovel.value.adaptType,
+            seriesUrl: newNovel.value.seriesUrl,
+            views: '0', 
+            isEnd: false, 
+            rating: 0,
+            year: new Date().getFullYear().toString(),
+            ageRate: 'ทั่วไป',
+            hasSeries: !!newNovel.value.adaptType,
+            tags: [] 
+          };
+          
+          allNovels.value.unshift(novelData);
+          showAdminModal.value = false; // ปิด Modal
+          
+          // ล้างฟอร์ม
+          newNovel.value = { title: '', category: 'bl', cover: '', youtubeId: '', readUrl: '', synopsis: '', adaptType: null, seriesUrl: '' };
+          coverMode.value = 'url';
+          uploadFile.value = null;
+          
+          alert('เพิ่มนิยายเรื่อง "' + novelData.title + '" เรียบร้อยแล้ว!');
+        };
+
         return { 
           isDark, toggleDarkMode,
           previewModal, selectedNovel, currentTab, setTab, selectedAdaptFilterLabel,
@@ -1752,7 +1874,11 @@
           openUrl, openRead, shareNovel, openPreview, handleImgError,
           getAdaptLabel, getAdaptIcon, getMediaTypeText,
           blNovels, fantasyNovels, mysteryNovels, schoolNovels, foodNovels, romanceNovels,
-          seriesNovels, animeNovels, movieNovels
+          seriesNovels, animeNovels, movieNovels,
+          
+          // ตัวแปรและฟังก์ชันใหม่ของระบบ Admin
+          showAdminModal, categoryOptions, adaptOptions, newNovel, addNewNovel,
+          coverMode, uploadFile, onFileSelected
         };
       }
     });
