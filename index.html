@@ -15,7 +15,6 @@
       transition: background-color 0.3s ease, color 0.3s ease;
     }
     
-    /* Theme Styles */
     body.body--dark {
       background-color: #141414;
       color: #ffffff;
@@ -89,7 +88,6 @@
     .novel-card { width: 100%; cursor: pointer; transition: transform 0.3s ease; }
     .novel-card:hover { transform: scale(1.06); z-index: 10; }
     
-    /* ขนาดปกการ์ดนิยายตามรูปแรก */
     .novel-img-wrapper { 
       width: 100%; height: 300px; 
       border-radius: 14px; 
@@ -137,8 +135,6 @@
     }
     .scroll-row::-webkit-scrollbar { display: none; }
     .scroll-row > div { display: inline-flex; gap: 18px; }
-    
-    /* ขนาดการ์ดสไลด์แบบแนวนอน (7 เรื่องพอดีหน้าจอ) */
     .scroll-row .novel-card { width: 205px; flex: 0 0 auto; }
 
     .header-icon {
@@ -150,7 +146,6 @@
       justify-content: center;
     }
     
-    /* Modal Styles */
     body.body--dark .preview-modal { 
       background-color: #181818; 
       color: #ffffff;
@@ -189,7 +184,6 @@
     body.body--light .nav-link:hover { color: #000000 !important; background: rgba(0, 0, 0, 0.06); }
     
     .search-input { width: 260px; transition: all 0.3s ease; }
-    
     .sound-btn { background: rgba(0, 0, 0, 0.6) !important; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); }
   </style>
 </head>
@@ -260,12 +254,9 @@
               </template>
             </q-input>
             
-            <!-- ปุ่มแอดมินสำหรับเพิ่มนิยาย -->
             <q-btn flat round icon="add_circle" color="green-4" @click="showAdminModal = true" title="เพิ่มนิยาย (Admin)"></q-btn>
-            
             <q-btn flat round icon="search" @click="toggleSearch"></q-btn>
 
-            <!-- ปุ่มสลับ Dark Mode / Light Mode -->
             <q-btn 
               flat 
               round 
@@ -311,8 +302,6 @@
                 </div>
 
                 <div class="hero-overlay" v-if="heroNovel">
-                  
-                  <!-- ปุ่มเปิด/ปิดเสียงกลาง -->
                   <div class="absolute-bottom-right z-top q-mb-lg q-mr-lg">
                     <q-btn 
                       round 
@@ -453,7 +442,6 @@
 
             <!-- หน้ารวมเฉพาะหมวดที่เลือก -->
             <div v-else class="q-mt-xl page-padding">
-              <!-- หมวด ซีรีส์ -->
               <div v-if="currentTab === 'series' && seriesNovels.length > 0" class="q-mb-xl">
                 <div class="row items-center q-mb-lg">
                   <div class="header-icon bg-blue-10 text-blue-4 shadow-4 q-mr-md">
@@ -478,7 +466,6 @@
                 </div>
               </div>
 
-              <!-- หมวด อนิเมะ -->
               <div v-if="currentTab === 'anime' && animeNovels.length > 0" class="q-mb-xl">
                 <div class="row items-center q-mb-lg">
                   <div class="header-icon bg-purple-10 text-purple-4 shadow-4 q-mr-md">
@@ -503,7 +490,6 @@
                 </div>
               </div>
 
-              <!-- หมวด ภาพยนตร์ -->
               <div v-if="currentTab === 'movie' && movieNovels.length > 0" class="q-mb-xl">
                 <div class="row items-center q-mb-lg">
                   <div class="header-icon bg-amber-10 text-amber-5 shadow-4 q-mr-md">
@@ -535,7 +521,8 @@
       <!-- Modal พรีวิวเรื่องย่อ -->
       <q-dialog v-model="previewModal">
         <q-card class="preview-modal" style="width: 800px; max-width: 92vw;">
-          <q-btn icon="close" flat round dense v-close-popup class="absolute-top-right q-ma-md z-top sound-btn text-white"></q-btn>
+          <q-btn icon="close" flat round dense v-close-popup class="absolute-top-right q-ma-md z-top sound-btn text-white" style="right: 40px;"></q-btn>
+          <q-btn icon="edit" flat round dense class="absolute-top-right q-ma-md z-top sound-btn text-amber-4" @click="openEditModal(selectedNovel)" title="แก้ไขข้อมูลเรื่องนี้" style="right: 0px;"></q-btn>
           
           <div v-if="selectedNovel">
             <div class="modal-video-wrapper">
@@ -595,6 +582,8 @@
               
               <q-select v-model="newNovel.category" :options="categoryOptions" label="หมวดหมู่หลัก *" :dark="isDark" outlined dense color="green-5" emit-value map-options required></q-select>
               
+              <q-input v-model="newNovel.views" label="จำนวนยอดวิว (เช่น 4.5M หรือ 1,200)" placeholder="ปล่อยว่างไว้จะเริ่มที่ 0" :dark="isDark" outlined dense color="green-5"></q-input>
+
               <div style="border: 1px solid rgba(128,128,128,0.3); border-radius: 6px; padding: 10px;">
                 <div class="row items-center q-mb-sm">
                   <span class="q-mr-md text-weight-medium">รูปหน้าปก:</span>
@@ -630,6 +619,66 @@
         </q-card>
       </q-dialog>
 
+      <!-- Modal สำหรับแก้ไขข้อมูลนิยาย (ครอบคลุมทุกส่วนที่ต้องการ) -->
+      <q-dialog v-model="showEditModalFlag">
+        <q-card style="width: 650px; max-width: 90vw;" :class="isDark ? 'bg-grey-10 text-white' : 'bg-white text-black'" class="q-pa-sm" style="border-radius: 12px;">
+          <q-card-section class="row items-center q-pb-none">
+            <div class="text-h6 text-weight-bold">
+              <q-icon name="edit" color="amber-5" class="q-mr-sm" size="sm"></q-icon>แก้ไขข้อมูลนิยายทั้งหมด
+            </div>
+            <q-space></q-space>
+            <q-btn icon="close" flat round dense v-close-popup></q-btn>
+          </q-card-section>
+          
+          <q-card-section class="q-pt-md" v-if="editNovelData">
+            <q-form @submit="saveEditedNovel" class="column q-gutter-y-md">
+              <q-input v-model="editNovelData.title" label="ชื่อเรื่องนิยาย *" :dark="isDark" outlined dense color="amber-5" required autofocus></q-input>
+              
+              <q-select v-model="editNovelData.category" :options="categoryOptions" label="หมวดหมู่หลัก *" :dark="isDark" outlined dense color="amber-5" emit-value map-options required></q-select>
+              
+              <div class="row q-col-gutter-sm">
+                <div class="col-12 col-sm-6">
+                  <q-input v-model="editNovelData.views" label="จำนวนยอดวิว" :dark="isDark" outlined dense color="amber-5"></q-input>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <q-input v-model="editNovelData.year" label="ปีที่เผยแพร่ / ฉาย" :dark="isDark" outlined dense color="amber-5"></q-input>
+                </div>
+              </div>
+
+              <div class="row q-col-gutter-sm">
+                <div class="col-12 col-sm-6">
+                  <q-input v-model="editNovelData.ageRate" label="เรตอายุ (เช่น ทั่วไป, 13+, 18+)" :dark="isDark" outlined dense color="amber-5"></q-input>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <q-input v-model="editNovelData.episodes" label="จำนวนตอน (ถ้ามี)" type="number" :dark="isDark" outlined dense color="amber-5"></q-input>
+                </div>
+              </div>
+
+              <div class="row items-center q-px-xs">
+                <q-toggle v-model="editNovelData.isEnd" label="สถานะ: จบแล้ว (ติ๊กถูก = จบแล้ว, ไม่ติ๊ก = ยังไม่จบ)" color="green-5" :dark="isDark"></q-toggle>
+              </div>
+
+              <q-input v-model="editNovelData.cover" label="ลิงก์รูปหน้าปก (URL) *" :dark="isDark" outlined dense color="amber-5" required></q-input>
+              
+              <q-input v-model="editNovelData.youtubeId" label="YouTube Video ID *" :dark="isDark" outlined dense color="amber-5" required></q-input>
+              
+              <q-input v-model="editNovelData.readUrl" label="ลิงก์สำหรับอ่านเรื่องนี้ (URL) *" :dark="isDark" outlined dense color="amber-5" required></q-input>
+              
+              <q-input v-model="editNovelData.synopsis" label="เรื่องย่อ / คำโปรย" type="textarea" :dark="isDark" outlined dense color="amber-50" rows="3"></q-input>
+              
+              <q-select v-model="editNovelData.adaptType" :options="adaptOptions" label="รูปแบบสื่อดัดแปลง (ถ้ามี)" :dark="isDark" outlined dense color="amber-5" emit-value map-options clearable></q-select>
+              
+              <q-input v-if="editNovelData.adaptType" v-model="editNovelData.seriesUrl" label="ลิงก์ไปดูสื่อดัดแปลง (URL)" :dark="isDark" outlined dense color="amber-5"></q-input>
+              
+              <div class="row justify-end q-mt-lg q-gutter-sm">
+                <q-btn label="ยกเลิก" color="grey" flat v-close-popup rounded class="q-px-md"></q-btn>
+                <q-btn label="บันทึกการแก้ไข" type="submit" color="amber-7" text-color="black" rounded class="q-px-md text-weight-bold"></q-btn>
+              </div>
+            </q-form>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
+
     </q-layout>
   </div>
 
@@ -645,8 +694,10 @@
         const previewModal = ref(false);
         const selectedNovel = ref(null);
         
-        // ตัวแปรสำหรับระบบ Admin เพิ่มนิยาย
         const showAdminModal = ref(false);
+        const showEditModalFlag = ref(false);
+        const editNovelData = ref(null);
+
         const categoryOptions = [
           { label: '💖 Boy Love (วาย)', value: 'bl' },
           { label: '✨ แฟนตาซี ผจญภัย & ต่างโลก', value: 'fantasy' },
@@ -661,10 +712,9 @@
           { label: 'ภาพยนตร์ (Movie)', value: 'movie' }
         ];
         const newNovel = ref({
-          title: '', category: 'bl', cover: '', youtubeId: '', readUrl: '', synopsis: '', adaptType: null, seriesUrl: ''
+          title: '', category: 'bl', cover: '', youtubeId: '', readUrl: '', synopsis: '', adaptType: null, seriesUrl: '', views: ''
         });
 
-        // ระบบอัปโหลดไฟล์
         const coverMode = ref('url');
         const uploadFile = ref(null);
 
@@ -754,6 +804,38 @@
           previewModal.value = true;
         };
 
+        const openEditModal = (novel) => {
+          editNovelData.value = { ...novel };
+          showEditModalFlag.value = true;
+        };
+
+        const saveEditedNovel = () => {
+          let categoryName = 'Boy Love (วาย)';
+          if (editNovelData.value.category === 'fantasy') categoryName = 'แฟนตาซี';
+          else if (editNovelData.value.category === 'mystery') categoryName = 'สืบสวน';
+          else if (editNovelData.value.category === 'school') categoryName = 'โรงเรียน';
+          else if (editNovelData.value.category === 'food') categoryName = 'อาหาร';
+          else if (editNovelData.value.category === 'romance') categoryName = 'โรแมนติก';
+
+          editNovelData.value.tags = [categoryName, 'นิยายแนะนำ'];
+          editNovelData.value.hasSeries = !!editNovelData.value.adaptType;
+
+          const index = allNovels.value.findIndex(n => n.id === editNovelData.value.id);
+          if (index !== -1) {
+            allNovels.value[index] = { ...editNovelData.value };
+          }
+
+          localStorage.setItem('novelStream_customNovels', JSON.stringify(allNovels.value));
+
+          selectedNovel.value = allNovels.value[index];
+          if (heroNovel.value && heroNovel.value.id === editNovelData.value.id) {
+            heroNovel.value = allNovels.value[index];
+          }
+
+          showEditModalFlag.value = false;
+          alert('บันทึกการแก้ไขเรียบร้อยแล้ว!');
+        };
+
         const getAdaptLabel = (type) => {
           if (type === 'anime') return 'ดูอนิเมะ';
           if (type === 'movie') return 'ดูภาพยนตร์';
@@ -780,7 +862,7 @@
           return 'รูปแบบสื่อ';
         });
 
-        const allNovels = ref([
+        const defaultNovels = [
           { 
             id: 1, 
             category: 'bl',
@@ -841,9 +923,8 @@
             cover: './images/ปรมาจารย์ลัทธิมาร.jpg', 
             youtubeId: 'YyIJtA0fSzs', 
             readUrl: 'https://www.mebmarket.com/index.php?action=BookDetails&book_id=334421', 
-            seriesUrl: 'https://wetv.vip/th/search/%E0%B8%9B%E0%B8%A3%E0%B8%A1%E0%B8%B2%E0%B8%88%E0%B8%B2%E0%B8%A3%E0%B8%A2%E0%B9%8C%E0%B8%A5%E0%B8%B1%E0%B8%97%E0%B8%98%E0%B8%B4%E0%B8%A1%E0%B8%B2%E0%B8%A3',
+            seriesUrl: 'https://wetv.vip/th/search/%E0%B8%9B%E0%B8%A3%E0%B8%B1%E0%B8%99%E0%B8%B2%E0%B8%88%E0%B8%B2%E0%B8%A3%E0%B8%A2%E0%B8%B5%E0%B8%A5%E0%B8%B1%E0%B8%97%E0%B8%98%E0%B8%B4%E0%B8%A3',
             adaptType: 'series',
-            adaptType: 'anime',
             views: '10.000M', 
             isEnd: true, 
             rating: 99, 
@@ -860,7 +941,7 @@
             title: 'สวรรค์ประทานพร (Heaven Official\'s Blessing)', 
             cover: './images/สวรรค์ประทานพร.jpg', 
             youtubeId: 'aRhaKwvM360', 
-            readUrl: 'https://fliphtml5.com/gvzjs/ykjw/%E0%B8%AA%E0%B8%A7%E0%B8%A3%E0%B8%A3%E0%B8%84%E0%B9%8C%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%97%E0%B8%B2%E0%B8%99%E0%B8%9E%E0%B8%A3_%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1_1/', 
+            readUrl: 'https://fliphtml5.com/gvzjs/ykjw/%E0%B8%AA%E0%B8%A7%E0%B8%A3%E0%B8%A3%E0%B8%84%E0%B9%8C%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%97%E0%B8%B2%E0%B8%99%E0%B8%9E%E0%B8%B3_%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1_1/', 
             seriesUrl: 'https://www.netflix.com/title/81364887',
             adaptType: 'anime',
             views: '12.4M', 
@@ -879,8 +960,8 @@
             title: 'ตัวร้ายอย่างข้า จะหนีเอาตัวรอดยังไงดี', 
             cover: './images/ตัวร้ายอย่างข้า จะหนีเอาตัวรอดยังไงดี.gif', 
             youtubeId: 'Z75j3CTRXZE', 
-            readUrl: 'https://fliphtml5.com/mijnk/bivk/%E0%B8%95%E0%B8%B1%E0%B8%A7%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A2%E0%B8%AD%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%88%E0%B8%B0%E0%B8%AB%E0%B8%99%E0%B8%B5%E0%B9%80%E0%B8%AD%E0%B8%B2%E0%B8%95%E0%B8%B1%E0%B8%A7%E0%B8%A3%E0%B8%AD%E0%B8%94%E0%B8%A2%E0%B8%B1%E0%B8%87%E0%B9%84%E0%B8%87%E0%B8%94%E0%B8%B5_%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1_1/', 
-            seriesUrl: 'https://wetv.vip/th/play/m2c25jodoyslvyv/d00348m13qz-EP1%3A_%E0%B8%95%E0%B8%B1%E0%B8%A7%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A2%E0%B8%AD%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%82%E0%B9%89%E0%B8%B2...%E0%B8%88%E0%B8%B0%E0%B8%AB%E0%B8%99%E0%B8%B5%E0%B9%80%E0%B8%AD%E0%B8%B2%E0%B8%95%E0%B8%B1%E0%B8%A7%E0%B8%A3%E0%B8%AD%E0%B8%94%E0%B8%A2%E0%B8%B1%E0%B8%87%E0%B9%84%E0%B8%87%E0%B8%94%E0%B8%B5',
+            readUrl: 'https://fliphtml5.com/mijnk/bivk/%E0%B8%95%E0%B8%B1%E0%B8%A2%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A2%E0%B8%AD%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%88%E0%B8%B0%E0%B8%AB%E0%B8%99%E0%B8%B5%E0%B9%80%E0%B8%AD%E0%B8%B2%E0%B8%95%E0%B8%B1%E0%B8%A2%E0%B8%AD%E0%B8%B8%E0%B8%94%E0%B8%B1%E0%B8%87%E0%B9%84%E0%B8%87%E0%B8%94%E0%B8%B5_%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1_1/', 
+            seriesUrl: 'https://wetv.vip/th/play/m2c25jodoyslvyv/d00348m13qz-EP1%3A_%E0%B8%95%E0%B8%B1%E0%B8%A2%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A2%E0%B8%AD%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%82%E0%B9%89%E0%B8%B2...%E0%B8%88%E0%B8%B0%E0%B8%AB%E0%B8%99%E0%B8%B5%E0%B9%80%E0%B8%AD%E0%B8%B2%E0%B8%95%E0%B8%B1%E0%B8%A2%E0%B8%AD%E0%B8%B8%E0%B8%94%E0%B8%B1%E0%B8%87%E0%B9%84%E0%B8%87%E0%B8%94%E0%B8%B5',
             adaptType: 'anime',
             views: '8.7M', 
             isEnd: true, 
@@ -956,7 +1037,7 @@
             cover: './images/คินน์พอร์ช.gif', 
             youtubeId: 'dZvpNreGVOc', 
             readUrl: 'https://www.readawrite.com/a/a4cce28152c270062f0a07a9f3ee66b1', 
-            seriesUrl: 'https://www.iq.com/album/%E0%B8%84%E0%B8%B4%E0%B8%99%E0%B8%99%E0%B9%8C%E0%B8%9E%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B8%8A-%E0%B9%80%E0%B8%94%E0%B8%AD%E0%B8%B0-%E0%B8%8B%E0%B8%B5%E0%B8%A3%E0%B8%B5%E0%B8%AA%E0%B9%8C-%E0%B8%A5%E0%B8%B2-%E0%B8%9F%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B9%80%E0%B8%95%E0%B9%89-2022-1vg8kmesarl?lang=th_th',
+            seriesUrl: 'https://www.iq.com/album/%E0%B8%84%E0%B8%B4%E0%B8%99%E0%B8%99%E0%B9%8C%E0%B8%9E%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B8%8A-%E0%B9%80%E0%B8%94-%E0%B8%8D%E0%B8%B5%E0%B8%A5%E0%B8%B5%E0%B8%AA%E0%B9%8C-%E0%B8%A5%E0%B8%B2-%E0%B8%9F%E0%B8%AD%E0%B8%A2%E0%B8%AD%E0%B9%80%E0%B8%95%E0%B9%87-2022-1vg8kmesarl?lang=th_th',
             adaptType: 'series',
             views: '11.2M', 
             isEnd: true, 
@@ -1012,7 +1093,7 @@
             title: 'Sword Art Online', 
             cover: './images/Sword Art Online.jpg', 
             youtubeId: '6ohYYtxfDCg', 
-            readUrl: 'https://www.mebmarket.com/ebook-481341-SWORD-ART-ONLINE-NEW-EDITION-%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1-1-%E0%B8%89%E0%B8%9A%E0%B8%B1%E0%B8%9A%E0%B8%99%E0%B8%B4%E0%B8%A2%E0%B8%B2%E0%B8%A2', 
+            readUrl: 'https://www.mebmarket.com/ebook-481341-SWORD-ART-ONLINE-NEW-EDITION-%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1-1-%E0%B8%89%E0%B8%9A%E0%B8%B1%E0%B8%9A%E0%B8%99%E0%B8%B2%E0%B8%A2%E0%B8%B2%E0%B8%A5', 
             seriesUrl: 'https://www.iq.com/album/sword-art-online-2012-1sm7i4izi51?lang=th_th',
             adaptType: 'anime',
             views: '20.1M', 
@@ -1088,7 +1169,7 @@
             title: 'สัประยุทธ์ทะลุฟ้า (Battle Through the Heavens)', 
             cover: './images/สัประยุทธ์ทะลุฟ้า.jpg', 
             youtubeId: 'CUZkpb40QNY', 
-            readUrl: 'https://www.yaakz.com/product/%E0%B8%AA%E0%B8%B1%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%A2%E0%B8%B8%E0%B8%97%E0%B8%98%E0%B8%97%E0%B8%B0%E0%B8%A5%E0%B8%B8%E0%B8%9F%E0%B9%89%E0%B8%B2-%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1-1-40-%E0%B8%88%E0%B8%9A-%E0%B9%81%E0%B8%9E%E0%B9%87%E0%B8%84%E0%B8%8A%E0%B8%B8%E0%B8%94/11000408800034987', 
+            readUrl: 'https://www.yaakz.com/product/%E0%B8%AA%E0%B8%B1%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%A2%E0%B8%B8%E0%B8%97%E0%B8%98%E0%B8%97%E0%B8%B0%E0%B8%A5%E0%B8%B8%E0%B8%9F%E0%B9%89%E0%B8%B2-%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1-1-40-%E0%B8%88%E0%B8%B1-%E0%B9%81%E0%B8%9E%E0%B9%87%E0%B8%84%E0%B8%81%E0%B8%B8%E0%B8%94/11000408800034987', 
             seriesUrl: 'https://wetv.vip/th/play/7tvogbkk02zrjtf/v0029y96zrh-EP1%3A_%E0%B8%AA%E0%B8%B1%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%A2%E0%B8%B8%E0%B8%97%E0%B8%98%E0%B8%97%E0%B8%B0%E0%B8%A5%E0%B8%B8%E0%B8%9F%E0%B9%89%E0%B8%B2_%E0%B8%8B%E0%B8%B5%E0%B8%8B%E0%B8%B1%E0%B8%991',
             adaptType: 'anime',
             views: '19.8M', 
@@ -1107,8 +1188,8 @@
             title: 'เทพยุทธ์เซียน Glory (The King\'s Avatar)', 
             cover: './images/เทพยุทธ์เซียน.gif', 
             youtubeId: 'Jj8w2iIIeZw', 
-            readUrl: 'https://www.se-ed.com/physical/%E0%B9%80%E0%B8%97%E0%B8%9E%E0%B8%A2%E0%B8%B8%E0%B8%97%E0%B8%98%E0%B8%8B%E0%B8%B5%E0%B8%A2%E0%B8%99-Glory-%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1-1-151tf9m2lnw840slupbi', 
-            seriesUrl: 'https://wetv.vip/th/play/gtqp6wlyvby6svl/b0032hypkul-EP1%EF%BC%9A%E0%B9%80%E0%B8%97%E0%B8%9E%E0%B8%A2%E0%B8%B8%E0%B8%97%E0%B8%98%E0%B8%8B%E0%B8%B5%E0%B8%A2%E0%B8%99%E0%B8%81%E0%B8%A5%E0%B8%AD%E0%B8%A3%E0%B8%B5%E0%B9%88_%28%E0%B8%9E%E0%B8%B2%E0%B8%81%E0%B8%A2%E0%B9%8C%E0%B9%84%E0%B8%97%E0%B8%A2%29',
+            readUrl: 'https://www.se-ed.com/physical/%E0%B9%80%E0%B8%97%E0%B8%9E%E0%B8%A2%E0%B8%B8%E0%B8%97%E0%B8%8B%E0%B8%B5%E0%B8%A2%E0%B8%99-Glory-%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1-1-151tf9m2lnw840slupbi', 
+            seriesUrl: 'https://wetv.vip/th/play/gtqp6wlyvby6svl/b0032hypkul-EP1%EF%BC%9A%E0%B9%80%E0%B8%97%E0%B8%9E%E0%B8%A2%E0%B8%B8%E0%B8%97%E0%B8%8B%E0%B8%B5%E0%B8%A2%E0%B8%99%E0%B8%81%E0%B8%A5%E0%B8%AD%E0%B8%A3%E0%B8%B5%E0%B9%88_%28%E0%B8%A3%E0%B8%B3%E0%B8%81%E0%B8%B5%E0%B8%A1%E0%B9%8C%E0%B9%84%E0%B8%97%E0%B8%A2%29',
             adaptType: 'anime',
             views: '15.3M', 
             isEnd: true, 
@@ -1145,7 +1226,7 @@
             title: 'มหาศึกชิงบัลลังก์ (A Game of Thrones)', 
             cover: './images/Game of Thrones.jpg', 
             youtubeId: 'KYKpcWuZDYs', 
-            readUrl: 'https://www.mebmarket.com/ebook-437378-A-Game-of-Thrones-%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%8A%E0%B8%B4%E0%B8%87%E0%B8%9A%E0%B8%B1%E0%B8%A5%E0%B8%A5%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B9%8C-1-1', 
+            readUrl: 'https://www.mebmarket.com/ebook-437378-A-Game-of-Thrones-%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%81%E0%B8%B1%E0%B8%87%E0%B8%9B%E0%B8%B2%E0%B8%A5%E0%B8%A5%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B9%8C-1-1', 
             seriesUrl: 'https://www.hbomax.com/show/4f6b4985-2dc9-4ab6-ac79-d60f0860b0ac',
             adaptType: 'series',
             views: '50.1M', 
@@ -1245,6 +1326,7 @@
             rating: 95, 
             year: '2015', 
             ageRate: '15+', 
+            episodes: 1, 
             hasSeries: true, 
             tags: ['สืบสวนปริศนาโบราณ', 'ลึกลับเหนือธรรมชาติ', 'ผจญภัย'], 
             synopsis: 'อู๋เสีย คนรุ่นที่สามของตระกูลขุดสุสาน ถือลายแผนที่ลายไหมโบราณนำกลุ่มผจญภัยเข้าสู่สุสานโบราณใต้ดิน' 
@@ -1255,7 +1337,7 @@
             title: 'กาหลมหรทึก', 
             cover: './images/กาหลมหรทึก.gif', 
             youtubeId: 'oZCVx_OVQkY', 
-            readUrl: 'https://www.mebmarket.com/ebook-326203-%E0%B8%81%E0%B8%B2%E0%B8%AB%E0%B8%A5%E0%B8%A1%E0%B8%AB%E0%B8%A3%E0%B8%97%E0%B8%B6%E0%B8%81--%E0%B8%89%E0%B8%9A%E0%B8%B1%E0%B8%9A%E0%B8%84%E0%B8%A3%E0%B8%9A%E0%B8%A3%E0%B8%AD%E0%B8%9A-10-%E0%B8%9B%E0%B8%B5', 
+            readUrl: 'https://www.mebmarket.com/ebook-326203-%E0%B8%81%E0%B8%B2%E0%B8%AB%E0%B8%A5%E0%B8%A1%E0%B8%AB%E0%B8%A3%E0%B8%97%E0%B8%B8%E0%B8%81--%E0%B8%89%E0%B8%9A%E0%B8%B1%E0%B8%9A%E0%B8%84%E0%B8%A3%E0%B8%B0%E0%B8%9A%E0%B8%AD%E0%B8%9A-10-%E0%B8%9B%E0%B8%B5', 
             seriesUrl: 'https://www.youtube.com/watch?v=apfwL8ktMR0&t=6s',
             adaptType: 'series',
             views: '5.9M', 
@@ -1274,7 +1356,7 @@
             title: 'ฆาตกรรมบนรถด่วนโอเรียนท์เอกซเพรส', 
             cover: './images/ฆาตกรรมบนรถด่วนโอเรียนท์เอกซเพรส.gif', 
             youtubeId: 'Mq4m3yAoW8E', 
-            readUrl: 'https://www.mebmarket.com/ebook-279995-%E0%B8%86%E0%B8%B2%E0%B8%95%E0%B8%81%E0%B8%A3%E0%B8%A3%E0%B8%A1%E0%B8%9A%E0%B8%99%E0%B8%A3%E0%B8%96%E0%B8%94%E0%B9%88%E0%B8%A7%E0%B8%99%E0%B9%82%E0%B8%AD%E0%B9%80%E0%B8%A3%E0%B8%B5%E0%B8%A2%E0%B8%99%E0%B8%97%E0%B9%8C%E0%B9%80%E0%B8%AD%E0%B8%81%E0%B8%8B%E0%B9%8C%E0%B9%80%E0%B8%9E%E0%B8%A3%E0%B8%AA-Murder-on-the-Orient-Express-%E0%B8%89%E0%B8%9A%E0%B8%B1%E0%B8%9A%E0%B8%9B%E0%B8%A3%E0%B8%B1%E0%B8%9B%E0%B8%9B%E0%B8%A3%E0%B8%B8%E0%B8%87', 
+            readUrl: 'https://www.mebmarket.com/ebook-279995-%E0%B8%86%E0%B8%B2%E0%B8%95%E0%B8%81%E0%B8%A3%E0%B8%A3%E0%B8%A1%E0%B8%9A%E0%B8%99%E0%B8%A3%E0%B8%B0%E0%B8%94%E0%B9%88%E0%B8%A7%E0%B8%99%E0%B9%82%E0%B8%AD%E0%B9%80%E0%B8%A2%E0%B8%A2%E0%B8%99%E0%B8%97%E0%B9%8C%E0%B9%80%E0%B8%AD%E0%B8%81%E0%B8%8B%E0%B9%8C%E0%B9%80%E0%B8%9E%E0%B8%A3%E0%B8%AA-Murder-on-the-Orient-Express-%E0%B8%89%E0%B8%9A%E0%B8%B1%E0%B8%9A%E0%B8%9B%E0%B8%A3%E0%B8%B1%E0%B8%9B%E0%B8%A3%E0%B8%B8%E0%B8%87', 
             seriesUrl: 'https://share.google/m7M6gSEtIsps7OcQ0',
             adaptType: 'movie',
             views: '7.8M', 
@@ -1294,7 +1376,7 @@
             cover: './images/เชอร์ล็อก โฮล์มส์.jpg', 
             youtubeId: '2zwaYbJc0wU',
             readUrl: 'https://www.mebmarket.com/index.php?action=series_detail&series_id=698&page_no=1', 
-            seriesUrl: 'https://tv.apple.com/th/movie/%E0%B9%80%E0%B8%8A%E0%B8%AD%E0%B8%A3%E0%B8%A5%E0%B8%AD%E0%B8%84-%E0%B9%82%E0%B8%AE%E0%B8%A5%E0%B8%A1%E0%B8%AA-%E0%B8%94%E0%B8%9A%E0%B9%81%E0%B8%9C%E0%B8%99%E0%B8%9E%E0%B8%86%E0%B8%B2%E0%B8%95%E0%B9%82%E0%B8%A5%E0%B8%81/umc.cmc.579n7joi0j443gu5o9baq6x4i?l=th',
+            seriesUrl: 'https://tv.apple.com/th/movie/%E0%B9%80%E0%B8%8A%E0%B8%AD%E0%B8%A3%E0%B8%A5%E0%B8%AD%E0%B8%84-%E0%B9%82%E0%B8%AE%E0%B8%A5%E0%B8%A1%E0%B8%AA-%E0%B8%94%E0%B8%9B%E0%B8%81%E0%B8%9B%E0%B8%9E%E0%B8%82%E0%B8%B2%E0%B8%95%E0%B9%82%E0%B8%A5%E0%B8%81/umc.cmc.579n7joi0j443gu5o9baq6x4i?l=th',
             adaptType: 'movie',
             views: '7.8M',
             isEnd: true, 
@@ -1388,7 +1470,7 @@
             title: 'โทระโดระ! ยายเสือใสกับนายลายมังกร (Toradora!)', 
             cover: './images/โทระโดระ! ยายเสือใสกับนายลายมังกร.jpg', 
             youtubeId: 'ya570uUgQNc', 
-            readUrl: 'https://www.animagshop.com/product/1304/animag-%E0%B8%A2%E0%B8%B1%E0%B8%A2%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B8%AD%E0%B9%83%E0%B8%AA%E0%B8%81%E0%B8%B1%E0%B8%9A%E0%B8%99%E0%B8%B2%E0%B8%A2%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2%E0%B9%82%E0%B8%94%E0%B8%A3%E0%B8%B0-novel', 
+            readUrl: 'https://www.animagshop.com/product/1304/animag-%E0%B8%A2%E0%B8%B1%E0%B8%81%E0%B9%80%E0%B8%AA%E0%B8%B1%E0%B8%AD%E0%B9%80%E0%B8%AA%E0%B8%B5%E0%B8%81%E0%B8%B4%E0%B8%81%E0%B8%B1%E0%B8%9A%E0%B8%99%E0%B8%B2%E0%B8%A2%E0%B8%AB%E0%B8%93%E0%B9%8B%E0%B8%B2%E0%B9%82%E0%B8%94%E0%B8%A3%E0%B8%B0-novel', 
             seriesUrl: 'https://www.bilibili.tv/th/video/2048831301',
             adaptType: 'anime',
             views: '8.6M', 
@@ -1426,7 +1508,7 @@
             title: 'The Hunger Games (เกมล่าชีวิต)', 
             cover: './images/The Hunger Games.jpg', 
             youtubeId: 'voUF4oYjm8w', 
-            readUrl: 'https://pubhtml5.com/kgab/ggoq/The_Hunger_Games_%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1_1_%E0%B9%80%E0%B8%81%E0%B8%A1%E0%B8%A5%E0%B9%88%E0%B8%B2%E0%B8%8A%E0%B8%B5%E0%B8%A7%E0%B8%B4%E0%B8%95_/', 
+            readUrl: 'https://pubhtml5.com/kgab/ggoq/The_Hunger_Games_%E0%B9%80%E0%B8%A5%E0%B8%81%E0%B8%B1%E0%B8%AA%E0%B8%B5%E0%B8%A7%E0%B8%B1%E0%B8%95_/', 
             seriesUrl: 'https://www.bilibili.tv/th/video/2042382981',
             adaptType: 'movie',
             views: '21.0M', 
@@ -1502,7 +1584,7 @@
             title: 'ที่พักและอาหารสำหรับภูตพราย ณ ดินแดนคาคุริโยะ (Kakuriyo)', 
             cover: './images/คาเฟ่ลึกลับกับบันทึกอาหารโบราณ.jpg', 
             youtubeId: '421qemrysF0', 
-            readUrl: 'https://jibchacafe.wordpress.com/2020/03/25/review-ln-kakuriyo-no-yadomeshi-%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%99%E0%B8%AD%E0%B8%A7%E0%B8%AA%E0%B8%B2%E0%B8%99/', 
+            readUrl: 'https://jibchacafe.wordpress.com/2020/03/25/review-ln-kakuriyo-no-yadomeshi-%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1%E0%B8%AD%E0%B8%A7%E0%B8%B2%E0%B8%AA%E0%B8%B1%E0%B8%A7%E0%B8%99/', 
             seriesUrl: 'https://www.crunchyroll.com/th/series/G6MEK1ZGR/kakuriyo---bed--breakfast-for-spirits',
             adaptType: 'anime',
             views: '4.8M', 
@@ -1521,7 +1603,7 @@
             title: 'ภัตตาคารรอยยิ้ม (Chocolat)', 
             cover: './images/ภัตตาคารรอยยิ้ม.jpg', 
             youtubeId: '692hOJq1KJE',
-            readUrl: 'https://shopee.co.th/%E0%B8%8A%E0%B8%B4%E0%B8%A1%E0%B8%A3%E0%B8%B1%E0%B8%81%E0%B8%88%E0%B8%B2%E0%B8%81%E0%B8%8A%E0%B9%87%E0%B8%AD%E0%B8%81%E0%B9%82%E0%B8%81%E0%B9%81%E0%B8%A5%E0%B8%95-(Chocolat)-Joanne-Harris-i.78563813.21713970077',
+            readUrl: 'https://shopee.co.th/%E0%B8%81%E0%B8%B4%E0%B8%A1%E0%B8%A1%E0%B8%B1%E0%B8%81%E0%B8%81%E0%B8%B2%E0%B8%81%E0%B8%8A%E0%B9%87%E0%B8%AD%E0%B8%81%E0%B8%93%E0%B8%81%E0%B8%B4%E0%B8%AD%E0%B8%81%E0%B8%B5%E0%B9%81%E0%B8%A5%E0%B8%95-(Chocolat)-Joanne-Harris-i.78563813.21713970077',
             seriesUrl: 'https://share.google/1VUQtKSEgyZnHCnja',
             adaptType: 'movie',
             views: '3.1M', 
@@ -1540,7 +1622,7 @@
             title: 'ขนมปังของความสุข (Bread of Happiness)', 
             cover: './images/ขนมปังของความสุข.jpg', 
             youtubeId: 'XjA480U_TSY', 
-            readUrl: 'https://www.amazon.co.jp/%E3%81%BF-2-1-%E3%81%97%E3%81%82%E3%82%8F%E3%81%9B%E3%81%AE%E3%83%91%E3%83%B3-%E3%83%9D%E3%83%97%E3%83%A9%E6%96%87%E5%BA%AB/dp/4591126994',  
+            readUrl: 'https://www.amazon.co.jp/%E3%81%BF-2-1-%E3%81%97%E3%81%82%E3%82%8F%E3%81%AE%E3%83%91%E3%83%B3-%E3%83%9D%E3%83%97%E3%83%A9%E6%96%87%E5%BA%AB/dp/4591126994',  
             seriesUrl: 'https://www.bilibili.tv/th/video/4794472935460864',
             adaptType: 'movie',
             views: '2.9M', 
@@ -1578,7 +1660,7 @@
             title: 'บุพเพสันนิวาส', 
             cover: './images/บุพเพสันนิวาส.gif', 
             youtubeId: '4a2TBh4w3QI', 
-            readUrl: 'https://www.mebmarket.com/ebook-4107-%E0%B8%9A%E0%B8%B8%E0%B8%9E%E0%B9%80%E0%B8%9E%E0%B8%AA%E0%B8%B1%E0%B8%99%E0%B8%99%E0%B8%B4%E0%B8%A7%E0%B8%B2%E0%B8%AA', 
+            readUrl: 'https://www.mebmarket.com/ebook-4107-%E0%B8%9B%E0%B8%B8%E0%B8%9E%E0%B9%80%E0%B8%9E%E0%B8%AA%E0%B8%B1%E0%B8%99%E0%B8%99%E0%B8%B4%E0%B8%A2%E0%B8%B2%E0%B8%AA', 
             seriesUrl: 'https://ch3plus.com/drama/565',
             adaptType: 'series',
             views: '24.5M', 
@@ -1597,7 +1679,7 @@
             title: 'พรหมลิขิต', 
             cover: './images/พรหมลิขิต.jpeg', 
             youtubeId: '1GpmbvwBf48', 
-            readUrl: 'https://www.mebmarket.com/ebook-117658-%E0%B8%9E%E0%B8%A3%E0%B8%AB%E0%B8%A1%E0%B8%A5%E0%B8%B4%E0%B8%82%E0%B8%B4%E0%B8%95', 
+            readUrl: 'https://www.mebmarket.com/ebook-117658-%E0%B8%9E%E0%B8%A3%E0%B8%AB%E0%B8%A5%E0%B8%B4%E0%B8%82%E0%B8%B4%E0%B8%95', 
             seriesUrl: 'https://ch3plus.com/drama/1511',
             adaptType: 'series',
             views: '18.2M', 
@@ -1635,8 +1717,8 @@
             title: 'มธุรสหวานล้ำ สลายเป็นเถ้าราวเกล็ดน้ำค้าง (Ashes of Love)', 
             cover: './images/มธุรสหวานล้ำ สลายเป็นเถ้าราวเกล็ดน้ำค้าง.jpg', 
             youtubeId: 'ncZ4xaaDMcw', 
-            readUrl: 'https://www.scribd.com/document/413249284/%E0%B8%A1%E0%B8%98%E0%B8%B8%E0%B8%A3%E0%B8%AA%E0%B8%AB%E0%B8%A7%E0%B8%B2%E0%B8%99%E0%B8%A5-%E0%B8%B3-%E0%B9%80%E0%B8%A5-%E0%B8%A1-1-pdf', 
-            seriesUrl: 'https://www.iq.com/play/%E0%B8%A1%E0%B8%98%E0%B8%B8%E0%B8%A3%E0%B8%AA%E0%B8%AB%E0%B8%A7%E0%B8%B2%E0%B8%99%E0%B8%A5%E0%B9%89%E0%B8%B3%E0%B8%AA%E0%B8%A5%E0%B8%B2%E0%B8%A2%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%E0%B9%80%E0%B8%96%E0%B9%89%E0%B8%B2%E0%B8%A3%E0%B8%B2%E0%B8%A3%E0%B8%B2%E0%B8%A7%E0%B9%80%E0%B8%81%E0%B8%A5%E0%B9%87%E0%B8%94%E0%B8%99%E0%B9%89%E0%B8%B3%E0%B8%84%E0%B9%89%E0%B8%B2%E0%B8%87-ep-1-19rwx9j6fo?lang=th_th',
+            readUrl: 'https://www.scribd.com/document/413249284/%E0%B8%A1%E0%B8%98%E0%B8%B8%E0%B8%A3%E0%B8%B2%E0%B8%A5%E0%B8%AB%E0%B8%A7%E0%B8%B2%E0%B8%93%E0%B8%A5-%E0%B8%B3-%E0%B9%80%E0%B8%A5-%E0%B8%A1-1-pdf', 
+            seriesUrl: 'https://www.iq.com/play/%E0%B8%A1%E0%B8%98%E0%B8%B8%E0%B8%A2%E0%B8%B2%E0%B8%A5%E0%B8%81%E0%B8%A3%E0%B8%A3%E0%B8%B0',
             adaptType: 'series',
             views: '17.3M', 
             isEnd: true, 
@@ -1711,7 +1793,7 @@
             title: 'จันทราโอบสุริยัน (The Moon Embracing the Sun)', 
             cover: './images/จันทราโอบสุริยัน.jpg', 
             youtubeId: '68A9cg9VdCQ', 
-            readUrl: 'https://www.se-ed.com/physical/%E0%B8%88%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%A3%E0%B8%B2%E0%B9%82%E0%B8%AD%E0%B8%9A%E0%B8%AD%E0%B8%B2%E0%B8%97%E0%B8%B4%E0%B8%95%E0%B8%A2%E0%B9%8C-(%E0%B8%9B%E0%B8%90%E0%B8%A1%E0%B8%9A%E0%B8%97)-2f1knhr18ikzam77n385', 
+            readUrl: 'https://www.se-ed.com/physical/%E0%B8%88%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%A3%E0%B8%B0%E0%B8%AD%E0%B8%9B%E0%B8%AD%E0%B8%B2%E0%B8%95%E0%B8%B8%E0%B8%A2%E0%B8%AC-(%E0%B8%9B%E0%B8%B0%E0%B8%A1%E0%B8%9B%E0%B8%97)-2f1knhr18ikzam77n385', 
             seriesUrl: 'https://www.monomax.me/title/9184-moon-embracing-the-sun.html',
             adaptType: 'series',
             views: '19.4M', 
@@ -1724,7 +1806,34 @@
             tags: ['ประวัติศาสตร์โชซอน', 'ชิงไหวพริบราชสำนัก', 'รักแท้'], 
             synopsis: 'เรื่องราวความรักระหว่างพระราชาแห่งโชซอนและหญิงสาวร่างทรง ผู้เคยเป็นพระชายาเอกที่ถูกใส่ร้ายและซ่อนตัวตนจากความทรงจำ' 
           }
-        ]);
+        ];
+
+        const savedNovels = localStorage.getItem('novelStream_customNovels');
+        let initialNovels = defaultNovels;
+
+        if (savedNovels) {
+          try {
+            let parsed = JSON.parse(savedNovels);
+            initialNovels = parsed.map(n => {
+              if (!n.tags || n.tags.length === 0) {
+                let catName = 'Boy Love (วาย)';
+                if (n.category === 'fantasy') catName = 'แฟนตาซี';
+                else if (n.category === 'mystery') catName = 'สืบสวน';
+                else if (n.category === 'school') catName = 'โรงเรียน';
+                else if (n.category === 'food') catName = 'อาหาร';
+                else if (n.category === 'romance') catName = 'โรแมนติก';
+                n.tags = [catName, 'นิยายแนะนำ'];
+              }
+              if (!n.ageRate) n.ageRate = '13+';
+              if (!n.views) n.views = '0';
+              return n;
+            });
+          } catch (e) {
+            initialNovels = defaultNovels;
+          }
+        }
+
+        const allNovels = ref(initialNovels);
 
         const filterByTab = (list) => {
           if (currentTab.value === 'series') return list.filter(n => n.adaptType === 'series' || (!n.adaptType && (n.hasSeries || n.seriesUrl)));
@@ -1833,32 +1942,38 @@
         const foodNovels = computed(() => filterByTab(allNovels.value.filter(n => n.category === 'food')));
         const romanceNovels = computed(() => filterByTab(allNovels.value.filter(n => n.category === 'romance')));
 
-        // ฟังก์ชันเมื่อกดปุ่มบันทึกเพิ่มนิยาย
         const addNewNovel = () => {
+          let categoryName = 'Boy Love (วาย)';
+          if (newNovel.value.category === 'fantasy') categoryName = 'แฟนตาซี';
+          else if (newNovel.value.category === 'mystery') categoryName = 'สืบสวน';
+          else if (newNovel.value.category === 'school') categoryName = 'โรงเรียน';
+          else if (newNovel.value.category === 'food') categoryName = 'อาหาร';
+          else if (newNovel.value.category === 'romance') categoryName = 'โรแมนติก';
+
           const novelData = {
-            id: allNovels.value.length + 1,
+            id: Date.now(),
             title: newNovel.value.title,
             category: newNovel.value.category,
-            cover: newNovel.value.cover, // จะเป็น URL หรือ Data Base64 จากรูปที่อัปโหลดก็ได้
+            cover: newNovel.value.cover,
             youtubeId: newNovel.value.youtubeId,
             readUrl: newNovel.value.readUrl,
             synopsis: newNovel.value.synopsis,
             adaptType: newNovel.value.adaptType,
             seriesUrl: newNovel.value.seriesUrl,
-            views: '0', 
+            views: newNovel.value.views && newNovel.value.views.trim() !== '' ? newNovel.value.views.trim() : '0', 
             isEnd: false, 
             rating: 0,
             year: new Date().getFullYear().toString(),
-            ageRate: 'ทั่วไป',
+            ageRate: '13+',
             hasSeries: !!newNovel.value.adaptType,
-            tags: [] 
+            tags: [categoryName, 'นิยายแนะนำ'] 
           };
           
           allNovels.value.unshift(novelData);
-          showAdminModal.value = false; // ปิด Modal
-          
-          // ล้างฟอร์ม
-          newNovel.value = { title: '', category: 'bl', cover: '', youtubeId: '', readUrl: '', synopsis: '', adaptType: null, seriesUrl: '' };
+          localStorage.setItem('novelStream_customNovels', JSON.stringify(allNovels.value));
+
+          showAdminModal.value = false;
+          newNovel.value = { title: '', category: 'bl', cover: '', youtubeId: '', readUrl: '', synopsis: '', adaptType: null, seriesUrl: '', views: '' };
           coverMode.value = 'url';
           uploadFile.value = null;
           
@@ -1872,11 +1987,10 @@
           heroNovel, pickRandomHero, isGlobalMuted, toggleGlobalMute,
           rowBL, rowFantasy, rowMystery, rowSchool, rowFood, rowRomance, scroll,
           openUrl, openRead, shareNovel, openPreview, handleImgError,
+          openEditModal, saveEditedNovel, showEditModalFlag, editNovelData,
           getAdaptLabel, getAdaptIcon, getMediaTypeText,
           blNovels, fantasyNovels, mysteryNovels, schoolNovels, foodNovels, romanceNovels,
           seriesNovels, animeNovels, movieNovels,
-          
-          // ตัวแปรและฟังก์ชันใหม่ของระบบ Admin
           showAdminModal, categoryOptions, adaptOptions, newNovel, addNewNovel,
           coverMode, uploadFile, onFileSelected
         };
