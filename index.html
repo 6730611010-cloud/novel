@@ -619,12 +619,12 @@
         </q-card>
       </q-dialog>
 
-      <!-- Modal สำหรับแก้ไขข้อมูลนิยาย (ครอบคลุมทุกส่วนที่ต้องการ) -->
+      <!-- Modal สำหรับแก้ไขข้อมูลนิยาย (เพิ่มปุ่มลบ 🗑️ ตรงนี้) -->
       <q-dialog v-model="showEditModalFlag">
         <q-card style="width: 650px; max-width: 90vw;" :class="isDark ? 'bg-grey-10 text-white' : 'bg-white text-black'" class="q-pa-sm" style="border-radius: 12px;">
           <q-card-section class="row items-center q-pb-none">
             <div class="text-h6 text-weight-bold">
-              <q-icon name="edit" color="amber-5" class="q-mr-sm" size="sm"></q-icon>แก้ไขข้อมูลนิยายทั้งหมด
+              <q-icon name="edit" color="amber-5" class="q-mr-sm" size="sm"></q-icon>แก้ไขข้อมูลนิยาย
             </div>
             <q-space></q-space>
             <q-btn icon="close" flat round dense v-close-popup></q-btn>
@@ -664,15 +664,20 @@
               
               <q-input v-model="editNovelData.readUrl" label="ลิงก์สำหรับอ่านเรื่องนี้ (URL) *" :dark="isDark" outlined dense color="amber-5" required></q-input>
               
-              <q-input v-model="editNovelData.synopsis" label="เรื่องย่อ / คำโปรย" type="textarea" :dark="isDark" outlined dense color="amber-50" rows="3"></q-input>
+              <q-input v-model="editNovelData.synopsis" label="เรื่องย่อ / คำโปรย" type="textarea" :dark="isDark" outlined dense color="amber-5" rows="3"></q-input>
               
               <q-select v-model="editNovelData.adaptType" :options="adaptOptions" label="รูปแบบสื่อดัดแปลง (ถ้ามี)" :dark="isDark" outlined dense color="amber-5" emit-value map-options clearable></q-select>
               
               <q-input v-if="editNovelData.adaptType" v-model="editNovelData.seriesUrl" label="ลิงก์ไปดูสื่อดัดแปลง (URL)" :dark="isDark" outlined dense color="amber-5"></q-input>
               
-              <div class="row justify-end q-mt-lg q-gutter-sm">
-                <q-btn label="ยกเลิก" color="grey" flat v-close-popup rounded class="q-px-md"></q-btn>
-                <q-btn label="บันทึกการแก้ไข" type="submit" color="amber-7" text-color="black" rounded class="q-px-md text-weight-bold"></q-btn>
+              <div class="row justify-between items-center q-mt-lg">
+                <!-- ปุ่มลบนิยาย -->
+                <q-btn icon="delete" label="ลบนิยายเรื่องนี้" color="negative" flat rounded @click="deleteNovel(editNovelData.id)"></q-btn>
+                
+                <div class="row q-gutter-sm">
+                  <q-btn label="ยกเลิก" color="grey" flat v-close-popup rounded class="q-px-md"></q-btn>
+                  <q-btn label="บันทึกการแก้ไข" type="submit" color="amber-7" text-color="black" rounded class="q-px-md text-weight-bold"></q-btn>
+                </div>
               </div>
             </q-form>
           </q-card-section>
@@ -836,6 +841,19 @@
           alert('บันทึกการแก้ไขเรียบร้อยแล้ว!');
         };
 
+        // ฟังก์ชันลบนิยาย
+        const deleteNovel = (id) => {
+          if (confirm('คุณต้องการลบนิยายเรื่องนี้ออกจากระบบใช่หรือไม่?')) {
+            allNovels.value = allNovels.value.filter(n => n.id !== id);
+            localStorage.setItem('novelStream_customNovels', JSON.stringify(allNovels.value));
+            
+            showEditModalFlag.value = false;
+            previewModal.value = false;
+            pickRandomHero();
+            alert('ลบนิยายเรียบร้อยแล้ว');
+          }
+        };
+
         const getAdaptLabel = (type) => {
           if (type === 'anime') return 'ดูอนิเมะ';
           if (type === 'movie') return 'ดูภาพยนตร์';
@@ -941,7 +959,7 @@
             title: 'สวรรค์ประทานพร (Heaven Official\'s Blessing)', 
             cover: './images/สวรรค์ประทานพร.jpg', 
             youtubeId: 'aRhaKwvM360', 
-            readUrl: 'https://fliphtml5.com/gvzjs/ykjw/%E0%B8%AA%E0%B8%A7%E0%B8%A3%E0%B8%A3%E0%B8%84%E0%B9%8C%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%97%E0%B8%B2%E0%B8%99%E0%B8%9E%E0%B8%B3_%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1_1/', 
+            readUrl: 'https://fliphtml5.com/gvzjs/ykjw/%E0%B8%AA%E0%B8%A7%E0%B8%A3%E0%B8%84%E0%B9%8C%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%97%E0%B8%B2%E0%B8%99%E0%B8%9E%E0%B8%B3_%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1_1/', 
             seriesUrl: 'https://www.netflix.com/title/81364887',
             adaptType: 'anime',
             views: '12.4M', 
@@ -1093,7 +1111,7 @@
             title: 'Sword Art Online', 
             cover: './images/Sword Art Online.jpg', 
             youtubeId: '6ohYYtxfDCg', 
-            readUrl: 'https://www.mebmarket.com/ebook-481341-SWORD-ART-ONLINE-NEW-EDITION-%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1-1-%E0%B8%89%E0%B8%9A%E0%B8%B1%E0%B8%9A%E0%B8%99%E0%B8%B2%E0%B8%A2%E0%B8%B2%E0%B8%A5', 
+            readUrl: 'https://www.mebmarket.com/ebook-481341-SWORD-ART-ONLINE-NEW-EDITION-%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1-1-%E0%B8%89%E0%B8%9A%E0%B8%B1%E0%B8%9A%E0%B8%99%E0%B8%B2%E0%B8%A2%E0%B8%A5', 
             seriesUrl: 'https://www.iq.com/album/sword-art-online-2012-1sm7i4izi51?lang=th_th',
             adaptType: 'anime',
             views: '20.1M', 
@@ -1356,7 +1374,7 @@
             title: 'ฆาตกรรมบนรถด่วนโอเรียนท์เอกซเพรส', 
             cover: './images/ฆาตกรรมบนรถด่วนโอเรียนท์เอกซเพรส.gif', 
             youtubeId: 'Mq4m3yAoW8E', 
-            readUrl: 'https://www.mebmarket.com/ebook-279995-%E0%B8%86%E0%B8%B2%E0%B8%95%E0%B8%81%E0%B8%A3%E0%B8%A3%E0%B8%A1%E0%B8%9A%E0%B8%99%E0%B8%A3%E0%B8%B0%E0%B8%94%E0%B9%88%E0%B8%A7%E0%B8%99%E0%B9%82%E0%B8%AD%E0%B9%80%E0%B8%A2%E0%B8%A2%E0%B8%99%E0%B8%97%E0%B9%8C%E0%B9%80%E0%B8%AD%E0%B8%81%E0%B8%8B%E0%B9%8C%E0%B9%80%E0%B8%9E%E0%B8%A3%E0%B8%AA-Murder-on-the-Orient-Express-%E0%B8%89%E0%B8%9A%E0%B8%B1%E0%B8%9A%E0%B8%9B%E0%B8%A3%E0%B8%B1%E0%B8%9B%E0%B8%A3%E0%B8%B8%E0%B8%87', 
+            readUrl: 'https://www.mebmarket.com/ebook-279995-%E0%B8%86%E0%B8%B2%E0%B8%95%E0%B8%81%E0%B8%A3%E0%B8%A3%E0%B8%A1%E0%B8%9A%E0%B8%99%E0%B8%A3%E0%B8%B0%E0%B8%94%E0%B9%88%E0%B8%A7%E0%B8%99%E0%B9%82%E0%B8%AD%E0%B9%80%E0%B8%A2%E0%B8%A2%E0%B8%99%E0%B8%97%E0%B9%8C%E0%B9%80%E0%B8%AD%E0%B8%81%E0%B8%8B%E0%B9%8C%E0%B9%80%E0%B8%9E%E0%B8%A3%E0%B8%AA-Murder-on-the-Orient-Express-%E0%B8%89%E0%B8%9A%E0%B8%B1%E0%B8%9A%E0%B8%9B%E0%B8%A3%E0%B8%B1%E0%B8%A3%E0%B8%B8%E0%B8%87', 
             seriesUrl: 'https://share.google/m7M6gSEtIsps7OcQ0',
             adaptType: 'movie',
             views: '7.8M', 
@@ -1584,7 +1602,7 @@
             title: 'ที่พักและอาหารสำหรับภูตพราย ณ ดินแดนคาคุริโยะ (Kakuriyo)', 
             cover: './images/คาเฟ่ลึกลับกับบันทึกอาหารโบราณ.jpg', 
             youtubeId: '421qemrysF0', 
-            readUrl: 'https://jibchacafe.wordpress.com/2020/03/25/review-ln-kakuriyo-no-yadomeshi-%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1%E0%B8%AD%E0%B8%A7%E0%B8%B2%E0%B8%AA%E0%B8%B1%E0%B8%A7%E0%B8%99/', 
+            readUrl: 'https://jibchacafe.wordpress.com/2020/03/25/review-ln-kakuriyo-no-yadomeshi-%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1%E0%B8%AD%E0%B8%A2%E0%B8%B2%E0%B8%AA%E0%B8%B1%E0%B8%A7%E0%B8%99/', 
             seriesUrl: 'https://www.crunchyroll.com/th/series/G6MEK1ZGR/kakuriyo---bed--breakfast-for-spirits',
             adaptType: 'anime',
             views: '4.8M', 
@@ -1717,8 +1735,8 @@
             title: 'มธุรสหวานล้ำ สลายเป็นเถ้าราวเกล็ดน้ำค้าง (Ashes of Love)', 
             cover: './images/มธุรสหวานล้ำ สลายเป็นเถ้าราวเกล็ดน้ำค้าง.jpg', 
             youtubeId: 'ncZ4xaaDMcw', 
-            readUrl: 'https://www.scribd.com/document/413249284/%E0%B8%A1%E0%B8%98%E0%B8%B8%E0%B8%A3%E0%B8%B2%E0%B8%A5%E0%B8%AB%E0%B8%A7%E0%B8%B2%E0%B8%93%E0%B8%A5-%E0%B8%B3-%E0%B9%80%E0%B8%A5-%E0%B8%A1-1-pdf', 
-            seriesUrl: 'https://www.iq.com/play/%E0%B8%A1%E0%B8%98%E0%B8%B8%E0%B8%A2%E0%B8%B2%E0%B8%A5%E0%B8%81%E0%B8%A3%E0%B8%A3%E0%B8%B0',
+            readUrl: 'https://www.scribd.com/document/413249284/%E0%B8%A1%E0%B8%98%E0%B8%B8%E0%B8%A5%E0%B8%B2%E0%B8%AB%E0%B8%A7%E0%B8%B2%E0%B8%93%E0%B8%A5-%E0%B8%B3-%E0%B9%80%E0%B8%A5-%E0%B8%A1-1-pdf', 
+            seriesUrl: 'https://www.iq.com/play/%E0%B8%A1%E0%B8%98%E0%B8%B2%E0%B8%A5%E0%B8%B0%E0%B8%A5%E0%B8%81%E0%B8%A3%E0%B8%B3%E0%B8%A3',
             adaptType: 'series',
             views: '17.3M', 
             isEnd: true, 
@@ -1793,7 +1811,7 @@
             title: 'จันทราโอบสุริยัน (The Moon Embracing the Sun)', 
             cover: './images/จันทราโอบสุริยัน.jpg', 
             youtubeId: '68A9cg9VdCQ', 
-            readUrl: 'https://www.se-ed.com/physical/%E0%B8%88%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%A3%E0%B8%B0%E0%B8%AD%E0%B8%9B%E0%B8%AD%E0%B8%B2%E0%B8%95%E0%B8%B8%E0%B8%A2%E0%B8%AC-(%E0%B8%9B%E0%B8%B0%E0%B8%A1%E0%B8%9B%E0%B8%97)-2f1knhr18ikzam77n385', 
+            readUrl: 'https://www.se-ed.com/physical/%E0%B8%88%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%A3%E0%B8%B0%E0%B8%AD%E0%B8%9B%E0%B8%AD%E0%B8%B2%E0%B8%95%E0%B8%B8%E0%B8%A2%E0%B8%AC-(%E0%B8%9B%E0%B8%A1%E0%B8%9B%E0%B8%97)-2f1knhr18ikzam77n385', 
             seriesUrl: 'https://www.monomax.me/title/9184-moon-embracing-the-sun.html',
             adaptType: 'series',
             views: '19.4M', 
@@ -1988,6 +2006,7 @@
           rowBL, rowFantasy, rowMystery, rowSchool, rowFood, rowRomance, scroll,
           openUrl, openRead, shareNovel, openPreview, handleImgError,
           openEditModal, saveEditedNovel, showEditModalFlag, editNovelData,
+          deleteNovel,
           getAdaptLabel, getAdaptIcon, getMediaTypeText,
           blNovels, fantasyNovels, mysteryNovels, schoolNovels, foodNovels, romanceNovels,
           seriesNovels, animeNovels, movieNovels,
